@@ -101,6 +101,8 @@
 ;; (setenv "MAKEOBJDIRPREFIX" (file-truename "~/obj/"))
 
 ;;; Add P4_16 mode
+
+(load "~/.emacs.d/site-lisp/p4_16-mode/p4_16-mode.el")
 (require 'p4_16-mode)
 (add-to-list 'auto-mode-alist '("\\.p4\\'" . p4_16-mode))
 
