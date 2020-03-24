@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: if
+# key: if
+# --
+
+if ${1:a < b} then {
+   ${2:expr}
+} else {
+   ${3:expr}
+} fi;
+

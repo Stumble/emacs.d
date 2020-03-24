@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: let
+# key: let
+# --
+
+(let ${1:id} : ${2:type} in {
+     $0
+});

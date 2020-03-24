@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: bfn_init
+# key: init_apply
+# --
+profile_t init_apply(const IR::Node* root) override {
+    $0
+    return Inspector::init_apply(root);
+}

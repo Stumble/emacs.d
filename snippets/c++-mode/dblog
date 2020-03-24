@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: dblog
+# key: dblog 
+# --
+LOG1("${1:when}, ${2:var} = " << $2)
