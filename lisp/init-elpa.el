@@ -108,6 +108,15 @@
     workgroups2
     zoutline
     company-c-headers
+    lsp-mode
+    lsp-ui
+    go-mode
+    rust-mode
+    flycheck-rust
+    cargo
+    toml-mode
+    markdown-mode ;; indirected dep by cargo
+    company-lsp
     company-statistics)
   "Packages to install from melpa-unstable.")
 
@@ -119,7 +128,7 @@
 (setq package-archives
       '(("localelpa" . "~/.emacs.d/localelpa/")
         ;; uncomment below line if you need use GNU ELPA
-        ;; ("gnu" . "https://elpa.gnu.org/packages/")
+        ("gnu" . "https://elpa.gnu.org/packages/")
         ("melpa" . "https://melpa.org/packages/")
         ("melpa-stable" . "https://stable.melpa.org/packages/")
 
@@ -477,5 +486,29 @@ PACKAGE is a symbol, VERSION is a vector as produced by `version-to-list', and
 
 ;; kill buffer without my confirmation
 (setq kill-buffer-query-functions (delq 'process-kill-buffer-query-function kill-buffer-query-functions))
+
+(require-package 'tuareg) ;; for ocaml
+(require-package 'scala-mode) ;; for scala
+
+;; replacing flymake with flycheck
+(require-package 'flycheck)
+(require-package 'irony)
+
+;; golang related packages
+;; (require-package 'company-go)
+(require-package 'go-errcheck)
+(require-package 'go-eldoc)
+(require-package 'go-rename)
+(require-package 'go-guru)
+
+(require-package 'lsp-mode)
+(require-package 'lsp-ui)
+(require-package 'company-lsp)
+
+;; rust support
+(require-package 'rust-mode)
+(require-package 'flycheck-rust)
+(require-package 'cargo)
+(require-package 'toml-mode)  ;; for editing cargo files.
 
 (provide 'init-elpa)
