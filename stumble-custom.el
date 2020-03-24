@@ -16,11 +16,6 @@
                            (y-or-n-p (format "Directory %s does not exist. Create it?" dir)))
                   (make-directory dir t))))))
 
-;; use undo-tree-mode to replace the origin undo-tree
-(load-file "~/.emacs.d/site-lisp/undo-tree-mode/undo-tree-0.6.4.el")
-(require 'undo-tree)
-(global-undo-tree-mode)
-
 ;; 屏蔽idle-require的minibuffer中的显示
 (setq idle-require-message-verbose nil)
 
