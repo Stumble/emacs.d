@@ -108,6 +108,7 @@
     workgroups2
     zoutline
     company-c-headers
+    flycheck
     lsp-mode
     lsp-ui
     go-mode
@@ -120,7 +121,10 @@
     company-statistics)
   "Packages to install from melpa-unstable.")
 
-(defvar melpa-stable-banned-packages nil
+(defvar melpa-stable-banned-packages
+  '(
+    flycheck
+    )
   "Banned packages from melpa-stable")
 
 ;; I don't use any packages from GNU ELPA because I want to minimize
