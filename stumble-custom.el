@@ -132,6 +132,8 @@
 
 (add-hook 'go-mode-hook #'lsp)
 
+(add-to-list 'lsp-file-watch-ignored "[/\\\\]vendor$")
+
 ;; # use my own to support type alias of Go 1.9 by:
 ;; go get -u github.com/rogpeppe/godef
 ;; cd $GOPATH/src/github.com/rogpeppe/godef
