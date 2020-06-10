@@ -50,9 +50,7 @@
 ;; pip3 install yapf
 
 ;;; ocaml setup code begin
-
 ;;; (require 'tuareg)
-
 ;;; ocaml setup code end
 
 ;; (setq opam-share (substring (shell-command-to-string "opam config var share 2> /dev/null") 0 -1))
@@ -85,23 +83,7 @@
 
 (global-set-key (kbd "M-,") 'company-complete)
 
-;; since we are using company-clang, this one is useless because only
-;; one company-backend will be use at one time, and company-clang
-;; can alway return the best accurate result.
-;; cpp company-gtags auto-complete setup
-;; run following command at ur local installed system dir
-;; mkdir -p ~/obj/usr/include && cd /usr/include && gtags ~/obj/usr/include
-;; mkdir -p ~/obj/usr/local/include && cd /usr/local/include && gtags ~/obj/usr/local/include
-;; (setenv "GTAGSLIBPATH" (concat "/usr/include"
-;;                                ":"
-;;                                "/usr/local/include"
-;;                                ":"
-;;                                (file-truename "~/learn/ndn/ndns-dev/ndns")
-;;                                ))
-;; (setenv "MAKEOBJDIRPREFIX" (file-truename "~/obj/"))
-
 ;;; Add P4_16 mode
-
 (load "~/.emacs.d/site-lisp/p4_16-mode/p4_16-mode.el")
 (require 'p4_16-mode)
 (add-to-list 'auto-mode-alist '("\\.p4\\'" . p4_16-mode))
@@ -112,14 +94,7 @@
 (require 'go-mode)
 (require 'go-rename)
 ;; much more accurate than godef
-;; go get golang.org/x/tools/cmd/guru
 (require 'go-guru)
-;; (add-hook 'go-mode-hook #'go-guru-hl-identifier-mode)
-;; go get -u github.com/josharian/impl
-;; go get -u golang.org/x/tools/cmd/godoc
-;; (require 'go-impl)
-;; go get -u github.com/davidrjenni/reftools/cmd/fillstruct
-;; (require 'go-fill-struct)
 (require 'company)
 (require 'lsp-mode)
 ;; annoying to me.
@@ -131,18 +106,40 @@
 ;;                           (company-mode)))
 
 (add-hook 'go-mode-hook #'lsp)
+(add-hook 'c++-mode-hook #'lsp)
 
 (add-to-list 'lsp-file-watch-ignored "[/\\\\]vendor$")
+(with-eval-after-load 'lsp-mode
+  ;; enable log only for debug
+  (setq lsp-log-io nil)
+  ;; use `evil-matchit' instead
+  (setq lsp-enable-folding nil)
+  ;; no real time syntax check
+  (setq lsp-diagnostic-package :none)
+  ;; handle yasnippet by myself
+  (setq lsp-enable-snippet nil)
+  ;; use `company-ctags' only.
+  ;; Please note `company-lsp' is automatically enabled if it's installed
+  ;; (setq lsp-enable-completion-at-point nil)
+  ;; turn off for better performance
+  (setq lsp-enable-symbol-highlighting nil)
+  ;; use find-fine-in-project instead
+  (setq lsp-enable-links nil)
+  ;; auto restart lsp
+  (setq lsp-restart 'auto-restart)
+  ;; don't watch 3rd party javascript libraries
+  ;; (push "[/\\\\][^/\\\\]*\\.\\(json\\|html\\|jade\\)$" lsp-file-watch-ignored)
+  ;; don't ping LSP lanaguage server too frequently
+  ;; (defvar lsp-on-touch-time 0)
+  ;; (defun my-lsp-on-change-hack (orig-fun &rest args)
+  ;;   ;; do NOT run `lsp-on-change' too frequently
+  ;;   (when (> (- (float-time (current-time))
+  ;;               lsp-on-touch-time) 120) ;; 2 mins
+  ;;     (setq lsp-on-touch-time (float-time (current-time)))
+  ;;     (apply orig-fun args)))
+  ;; (advice-add 'lsp-on-change :around #'my-lsp-on-change-hack)
+  )
 
-;; # use my own to support type alias of Go 1.9 by:
-;; go get -u github.com/rogpeppe/godef
-;; cd $GOPATH/src/github.com/rogpeppe/godef
-;; git remote add my git@github.com:Stumble/godef.git
-;; git fetch my && git checkout my/master
-;; go install
-;; # hmm, golang is really google-specific language.
-;; go get -u github.com/kisielk/errcheck
-;; go get -u github.com/nsf/gocode
 (nvmap :prefix ",go"
        "j" 'godef-jump-other-window
        "s" 'godef-jump
@@ -154,7 +151,6 @@
        "rn" 'go-rename)
 
 (add-hook 'go-mode-hook 'go-eldoc-setup)
-
 
 ;; web mode indent = 2
 ;; You can also set values for web-mode-css-indent-offset for CSS,
