@@ -56,7 +56,7 @@
   - [[#network-is-blocked][Network is blocked]]
   - [[#email][Email]]
   - [[#cannot-download-packages][Cannot download packages?]]
-  - [[#use-packages-on-gnu-elpa][use packages on GNU ELPA]]
+  - [[#use-packages-on-gnu-elpa][Use packages on GNU ELPA]]
   - [[#disable-vim-key-bindings][Disable Vim key bindings]]
   - [[#evil-setup][Evil setup]]
   - [[#c-auto-completion-doesnt-work][C++ auto-completion doesn't work?]]
@@ -80,8 +80,8 @@
 - Please read FAQ to disable [[http://www.vim.org][Vim]] key bindings
 - Please read section "Key bindings" to learn key bindings
 - If you use Windows Emacs, you have to [[https://emacs.stackexchange.com/questions/27202/how-do-i-install-gnutls-for-emacs-25-1-on-windows][install GnuTLS Dlls manually]] to install packages from remote repositories. Or else you got error message like =error: Package `async-' is unavailable= on Windows. Please note since =Emacs 26.1=, you can download full version which works out of box
-- Most packages from [[http://melpa.org][MELPA]] are *invisible* but packages from [[https://stable.melpa.org][MELPA Stable]] are visible. You can modify variable =melpa-include-packages= in =~/.emacs.d/lisp/init-elpa.el= to install unstable packages. Please choose stable packages if possible. Even advanced user could under-estimate the risk of unstable packages
-- Emacs 24 support will be dropped on 2019. Check "Support legacy Emacs versions" if you use old versions
+- Most packages from [[http://melpa.org][MELPA]] are *invisible* but packages from [[https://stable.melpa.org][MELPA Stable]] are visible. You can modify variable =melpa-include-packages= in =lisp/init-elpa.el= to install unstable packages. Please choose stable packages if possible. Even advanced user could under-estimate the risk of unstable packages
+- Emacs 25 support will be dropped on January 2021. Check "Support legacy Emacs versions" if you use old versions
 - Other issues are covered in FAQ
 * Installation
 Most users should follow the section "Install in normal way".
@@ -89,16 +89,13 @@ Most users should follow the section "Install in normal way".
 You need the section "Install stable version" *if and only if*,
 - You don't have network access
 - You have never used any command line program
+Please remove =~/.emacs=. =~= means [[https://en.wikipedia.org/wiki/Home_directory][Home directory]] first.
 ** Install in normal way
-Please remove =~/.emacs.d/init.el= and =~/.emacs=. =~= means [[https://en.wikipedia.org/wiki/Home_directory][Home directory]].
-
 There are two ways to install this setup (I recommend the first way):
 
 First way is to download [[https://github.com/redguardtoo/emacs.d/archive/master.zip][latest setup]] and extract its content into =~/.emacs.d=, OR run command =cd ~; git clone https://github.com/redguardtoo/emacs.d.git .emacs.d= in shell.
 
-Second way is to use [[https://github.com/redguardtoo/emacs.d/archive/stable.zip][stable setup]], OR run command =cd ~; git clone https://github.com/redguardtoo/emacs.d.git .emacs.d; cd .emacs.d; git reset --hard stable= in shell.
-
-Ensure that =init.el= contained in this repo ends up at =~/.emacs.d/init.el=.
+Second way is to use [[https://github.com/redguardtoo/emacs.d/archive/stable.zip][stable setup]], or run command =cd ~; git clone https://github.com/redguardtoo/emacs.d.git .emacs.d; cd .emacs.d; git reset --hard stable= in shell.
 
 By default, packages are installed automatically during Emacs startup.
 
@@ -106,18 +103,17 @@ Someone reported that package repository [[http://melpa.org]] is not responsive 
 
 No worries. You could answer "YES" to the question "Switch to faster package repositories in China temporarily?" when firing Emacs. Please note after startup you could change variable =package-archives= in =init-elpa.el= to permanently switch to Chinese repositories.
 ** Install stable version (OPTIONAL)
-- Remove =~/.emacs=.
 - Download [[https://github.com/redguardtoo/emacs.d/archive/stable.zip]]
 - Extract its content into empty directory =~/.emacs.d=
 - Download [[https://github.com/redguardtoo/myelpa/archive/stable.zip]]
 - Extract the zip somewhere, say =~/projs/myelpa=
 - Make sure a file named =archive-contents= exists in =~/projs/myelpa=
-- Uncomment the line containing "myelpa" in =~/.emacs.d/lisp/init-elpa.el=. Path =~/projs/myelpa/= could be modified.
+- Uncomment the line containing "myelpa" in =lisp/init-elpa.el=. Path =~/myelpa/= could be modified.
 - Start Emacs now!
 
-Now you are using local package repository =~/projs/melpa=.
+Now you are using local package repository =~/myelpa=.
 
-You can switch to online repositories like http://elpa.gnu.org or http://melpa.org by modifying =~/.emacs.d/lisp/init-elpa.el=.
+You can switch to online repositories like http://elpa.gnu.org or http://melpa.org by modifying =lisp/init-elpa.el=.
 ** Third party programs (OPTIONAL)
 *** Install
 Most command line programs can be installed through =default package manager=.
@@ -148,13 +144,11 @@ You can insert =(setq mm-text-html-renderer 'w3m)= in =~/.gnus.el= to force HTML
 =shr= supports colored text while =w3m= not.
 
 But my =w3m= based utilities can open video/audio/image with the help of =w3m=.
-**** lua
-- Required by =flymake-lua=
 **** aspell or hunspell
 - Required by =flyspell=
 - =hunspell= is the alternative of =aspell=. You need only one of them.
 - For =aspell=, you may need its dictionary =aspell-en=
-- aspell dictionary is set "en_US" in =~/.emacs.d/lisp/init-spelling.el=. It can be changed.
+- Default language for spell check is "en_US" in =init-spelling.el=. It can be changed
 - I recommend =aspell= for programmers. Non-programmers find =hunspell= is better on typo correction
 
 If you use hunspell, check [[http://blog.binchen.org/posts/what-s-the-best-spell-check-set-up-in-emacs.html][my article]]. Please note the hunspell executable understands either unix format path or windows format path but not both. You need figure out hunspell version you are using.
@@ -172,9 +166,13 @@ ACN
 ACT
 #+end_src
 
+The content of personal dictionary can be cleaned by =M-x my-clean-aspell-dict=.
+
 Hunspell's default personal English dictionary is =$HOME/.hunspell_en_US=. The file format is same as aspell.
-**** tidy
-- Required by =web-mode= for syntax check.
+
+Flyspell configuration is actually simple. Aspell uses =ispell-extra-args=. Hunspell uses =ispell-local-dictionary= and =ispell-local-dictionary=. That's it.
+**** xmlstarlet or xml
+- Required by =flymake= for HTML syntax check.
 **** identify from [[http://www.imagemagick.org/][ImageMagick]]
 - Required by =org-mode= to export org file to odt contain images
 **** zip and unzip
@@ -191,11 +189,9 @@ Hunspell's default personal English dictionary is =$HOME/.hunspell_en_US=. The f
 **** [[http://clang.llvm.org][Clang]]
 - Required by =cpputils-cmake=, =company-clang= from [[https://github.com/company-mode/company-mode][company-mode]]
 - If you use =cpputils-cmake= and =cmake=, =cpputils-cmake= will do all the setup for you. You need not read next item! But please spend *a few minutes to learn the basics of cmake*! There is a one minute step-by-step-guide in [[https://github.com/redguardtoo/cpputils-cmake][README of cpputils-cmake]] to teach you how to use cmake.
-- If you use =company-clang=, add =(setq company-clang-arguments '("-I/example1/dir" "-I/example2/dir"))= into ~/.emacs.d/init.el
+- If you use =company-clang=, add =(setq company-clang-arguments '("-I/example1/dir" "-I/example2/dir"))= into =init.el=
 **** Pandoc
 - Required by =markdown-preview= from =markdown-mode=
-**** GCC/Make
-- Required by =flymake=
 **** [[https://ctags.io/][Universal Ctags (recommended)]] or [[http://ctags.sourceforge.net][Exuberant CTags]]
 - It creates tags file for code navigation and code completion
 - Required by many tags related packages (=xref=, =counsel-etags=, =company-ctags= from =company-mode=, etc)
@@ -211,16 +207,13 @@ Hunspell's default personal English dictionary is =$HOME/.hunspell_en_US=. The f
 **** js-beautify
 - Beautify javascript code
 - Install [[http://pip.readthedocs.org/en/stable/installing/][pip]] through OS package manager, then =pip install jsbeautifier=
-**** syntaxerl
-- syntax check [[http://www.erlang.org/][Erlang]] through flymake
-- Install from [[https://github.com/ten0s/syntaxerl]]
 **** sdcv (console version of StarDict)
 - Required by =sdcv.e=
 - Run =curl http://pkgs.fedoraproject.org/repo/pkgs/stardict-dic/stardict-dictd_www.dict.org_wn-2.4.2.tar.bz2/f164dcb24b1084e1cfa2b1cb63d590e6/stardict-dictd_www.dict.org_wn-2.4.2.tar.bz2 | tar jx -C ~/.stardict/dic= to install dictionary
 **** [[https://github.com/BurntSushi/ripgrep][ripgrep]]
 - Optionally used by =M-x counsel-etags-grep= to search text in files
 - Run =curl https://sh.rustup.rs -sSf | sh= in shell to install [[https://www.rust-lang.org/][Rust]] then =cargo install ripgrep=
-- Tweak environment variable PATH so Emacs find ripgrep
+- Tweak environment variable =PATH= so Emacs can find ripgrep
 **** [[http://www.sbcl.org/][sbcl]]
 - Required by [[https://common-lisp.net/project/slime/][SLIME: The Superior Lisp Interaction Mode for Emacs]]
 **** ffmpeg
@@ -229,8 +222,13 @@ Hunspell's default personal English dictionary is =$HOME/.hunspell_en_US=. The f
 It's Grammar, Style and Spell Checker
 - Download from [[https://languagetool.org/download/LanguageTool-stable.zip]].
 - Used by [[https://github.com/mhayashi1120/Emacs-langtool][Langtool]. Check its README for usage
-**** [[https://github.com/stsquad/emacs_chrome][edit browser's text area with Emacs]]
+**** [[https://github.com/koalaman/shellcheck][shellcheck]]
+- Check syntax of shell script
+- Required by =lazyflymake=
+**** [[https://github.com/stsquad/emacs_chrome][Edit browser's text area with Emacs]]
 Please install corresponding Chrome/Firefox addons.
+**** [[https://mkvtoolnix.download/][mkvtoolnix]]
+- Used by hydra command in dired
 * Tutorial (OPTIONAL)
 Knowledge of Linux/Unix is required. At least you should know the meanings of "environment variable", "shell", "stdin", "stdout", "man", "info".
 ** Basic tutorial
@@ -268,7 +266,7 @@ On Windows, you need install Cygwin which provides command line programs to Emac
 
 Install Ctags (Universal Ctags is better. Exuberant Ctags is fine). On Windows, you could install Ctags through Cygwin.
 
-Run =M-x counsel-etags-find-ctags= from =counsel-etags= to navigate code. It uses tags files created by ctags. Tags file will be automatically created/update when you start using `counsel-etags`.
+Run =M-x counsel-etags-find-tag-at-point= from =counsel-etags= to navigate code. It uses tags files created by ctags. Tags file will be automatically created/update when you start using `counsel-etags`.
 
 Run =M-x counsel-etags-grep= to search text (grep) in project. Project root is automatically detected.
 
@@ -276,11 +274,11 @@ Run =M-x find-file-in-project-by-selected= from =find-file-in-project= to find f
 
 Code auto-completion works out of box by using tags file created by Ctags. You need run =counsel-etags= at least once to fire up Ctags. =company-ctags= from =company-mode= provides the candidates for auto completion. No manual setup is required.
 
-Please [[https://en.wikipedia.org/wiki/Grep][grep]] in the directory =~/.emacs.d/lisp= if you have any further questions on setup.
+Please [[https://en.wikipedia.org/wiki/Grep][grep]] in the directory =lisp= if you have any further questions on setup.
 ** Key bindings
 Don't memorize any key binding. Try =M-x any-command-in-emacs and key binding hint is displayed.
 
-Most key bindings are defined in =~/.emacs.d/lisp/init-evil.el=, a few key in =~/.emacs.d/lisp/init-hydra.el= which uses [[https://github.com/abo-abo/hydra][Hydra]].
+Most key bindings are defined in =lisp/init-evil.el=, a few key in =lisp/init-hydra.el= which uses [[https://github.com/abo-abo/hydra][Hydra]].
 
 Press =C-c C-y= anywhere to bring up default hydra menu.
 
@@ -293,9 +291,11 @@ Press =kj= to escape from =evil-insert-state= and everything else in Emacs. It's
 ** Locked packages
 Some packages are so important to my workflow that they are locked.
 
-Those packages are placed at =~/.emacs.d/site-lisp=.
+Those packages are placed at =site-lisp/=.
 
-They will not be upgraded by ELPA.emacs.d/site-lisp= at first.
+They will not be upgraded by package system.
+
+Please make sure same package is not installed through elpa. Please check the content of directory "elpa/" in =.emacs.d= root. 
 ** How to install new packages?
 I only use two package repositories,
 - [[https://stable.melpa.org]] (holding stable packages)
@@ -306,11 +306,11 @@ If a package named =MY-PKG= exists in the stable repository, you only need one l
 (require-package 'MY-PKG)
 #+end_src
 
-This line could be placed in =~/.emacs.d/lisp/init-elpa.el= or =~/.custom.el=.
+This line could be placed in =lisp/init-elpa.el= or =~/.custom.el=.
 
 You'd better place everything related to =MY-PKG= into =~/.custom.el= so the main stream change won't impact your own configuration.
 
-If the package does not exist in the stable repository, modify =melpa-include-packages= in =~/.emacs.d/lisp/init-elpa.el= first.
+If the package does not exist in the stable repository, modify =melpa-include-packages= in =lisp/init-elpa.el= first.
 
 I encourage you to read =init-elpa.el= to understand how packages are managed if you are good at Emacs Lisp, 
 ** Git blame current line
@@ -337,16 +337,15 @@ You can customize =my-term-program= whose default value is =/bin/bash=. It's use
 ** Override default setup
 Place your setup in =~/.custom.el= which is loaded after other "*.el".
 
-So you can use any functions defined in =~/.emacs.d=.
+So you can use any functions defined in my emacs configuration.
 
-Here is a sample to override keybindings defined in =~/.emacs.d/lisp/init-evil.el=,
+Here is a sample to override keybindings defined in =lisp/init-evil.el=,
 #+begin_src elisp
-(eval-after-load "evil"
-  '(progn
-     (my-space-leader-def
-       "ss" 'pwd
-       "ll" 'pwd
-       "pp" 'pwd)))
+(with-eval-after-load 'evil
+  (my-space-leader-def
+    "ss" 'pwd
+    "ll" 'pwd
+    "pp" 'pwd))
 #+end_src
 ** Code navigation and auto-completion
 It's usable out of box if Ctags is installed
@@ -379,7 +378,7 @@ Write down the name of color theme (for example, molokai).
 *** Setup color theme manually (recommended)
 You can =M-x counsel-load-theme= to switch themes.
 
-Or you can insert below code into end of =~/.custom.el= or =~/.emacs.d/init.el=,
+Or you can insert below code into end of =~/.custom.el= or =init.el=,
 #+begin_src elisp
 ;; Please note the color theme's name is "molokai"
 (load-theme 'molokai t)
@@ -472,8 +471,8 @@ Some variables are hard coded so you cannot =M-x customize= to modify them.
 
 Here are the steps to change their values:
 - Find the variable description by =M-x customize=
-- For text "Company Clang Insert Arguments", search =company-clang-insert-argument= in =~/.emacs.d/lisp/=
-- You will find =~/.emacs.d/lisp/init-company.el= and modify =company-clang-insert-argument=
+- For text "Company Clang Insert Arguments", search =company-clang-insert-argument= in =lisp/=
+- You will find =lisp/init-company.el= and modify =company-clang-insert-argument=
 
 BTW, please *read my comments* above the code at first.
 ** Open/Save files with Counsel/Ivy
@@ -486,9 +485,9 @@ I strongly suggest [[http://www.cygwin.com/][Cygwin]] version of Emacs. Native v
 By default, environment variable =HOME= points to the directory =C:\Users\<username>= on Windows 7+. You need copy the folder =.emacs.d= into that directory. Or you can change =HOME=.
 ** Yasnippet
 - Instead of =M-x yas-expand= or pressing =TAB= key, you can press =M-j= instead.
-- Yasnippet works out of box. But you can =M-x my-yas-reload-all= to force Yasnippet compile all the snippets. If you run =my-yas-reload-all= once, you always need run it when new snippets is added. The purpose of =my-yas-reload-all= is to optimize the Emacs startup only. IMO, it's not worth the effort.
-- You can add your snippets into =~/.emacs.d/snippets/=.
-- Run =grep -rns --exclude='.yas*' 'key:' *= in =~/.emacs.d/snippets= to see my own snippets
+- Yasnippet works out of box. But you can =M-x my-yas-reload-all= to force Yasnippet compile all the snippets. If you run =my-yas-reload-all= once, you always need run it when new snippets is added. The purpose of =my-yas-reload-all= is to make Emacs start up faster.
+- You can add your snippets into =snippets/=.
+- Run =grep -rns --exclude='.yas*' 'key:' *= in =snippets/= to see my own snippets
 ** Non-English users
 Locale must be *UTF-8 compatible*. For example, as I type =locale= in shell, I got the output "zh_CN.UTF-8".
 ** Behind corporate firewall
@@ -504,14 +503,14 @@ If you use Gnus for email, check =init-gnus.el= and read [[https://github.com/re
 Some package cannot be downloaded automatically because of network problem.
 
 Run =M-x package-refresh-content=, restart Emacs, reinstall package.
-** use packages on [[https://elpa.gnu.org/][GNU ELPA]]
+** Use packages on [[https://elpa.gnu.org/][GNU ELPA]]
 By default, packages from GNU ELPA are NOT available. Search the line "uncomment below line if you need use GNU ELPA" in =init-elpa.el= if you want to access GNU ELPA.
 
 For example, [[https://github.com/flycheck/flycheck][flycheck]] requires packages from GNU ELPA.
 ** Disable Vim key bindings
 By default EVIL (Vim emulation in Emacs) is used. Comment out line containing =(require 'init-evil)= in init.el to unload it.
 ** Evil setup
-It's defined in =~/.emacs.d/lisp/init-evil.el=. Press =C-z= to switch between Emacs and Vim key bindings.
+It's defined in =lisp/init-evil.el=. Press =C-z= to switch between Emacs and Vim key bindings.
 
 Please read [[https://github.com/emacs-evil/evil/raw/master/doc/evil.pdf][its PDF manual]] before using =evil-mode=.
 ** C++ auto-completion doesn't work?
@@ -566,47 +565,60 @@ Insert below code into =~/.emacs= or =~/.custom.el=,
 (setq system-time-locale "C")
 #+end_src
 ** Directory structure
-=~/.emacs.d/init.el= is the main file. It includes other =*.el= files.
+=init.el= is the main file. It includes other =*.el= files.
 
-=~/.emacs.d/lisp/init-elpa.el= defines what packages will be installed from [[http://melpa.org][MELPA]].
+=lisp/init-elpa.el= defines what packages will be installed from [[http://melpa.org][MELPA]].
 
-Packages are installed into =~/.emacs.d/elpa/=.
+Packages are installed into =elpa/=.
 
-I also manually download and extract some packages into =~/.emacs.d/site-lisp/=. Packages in =~/.emacs.d/site-lisp/= are *not visible* to the package manager.
+I also manually download and extract some packages into =site-lisp/=. Packages in =site-lisp/= are *not visible* to the package manager.
 
-My own snippets is at =~/.emacs.d/snippets=.
+My own snippets is at =snippets/=.
 
-The git hooks is placed in =~/.emacs.d/githooks= directory.
+The git hooks is placed in =githooks= directory.
 
 Other directories don't matter.
 ** Run the unit test before git commit
-On macOS/Linux/Cygwin, run =make githooks= to install hooks into =~/.emacs.d/.git/hooks=.
+On macOS/Linux/Cygwin, run =make githooks= to install hooks into =.git/hooks=.
 
 Then unit test is run automatically before =git commit=.
 ** Python environment
 This setup used [[https://github.com/jorgenschaefer/elpy][elpy (Emacs Python Development Environment)]].
 
-See elpy's official documentation on how to use elpy.
+See elpy official documentation on how to use elpy.
 ** Set up [[https://github.com/emacs-lsp/lsp-mode][lsp-mode]]
 You could insert below code into =~/.custom.el=,
 #+begin_src elisp
-(eval-after-load 'lsp-mode
-  '(progn
-     ;; enable log only for debug
-     (setq lsp-log-io nil)
-     ;; use `evil-matchit' instead
-     (setq lsp-enable-folding nil)
-     ;; handle yasnippet by myself
-     (setq lsp-enable-snippet nil)
-     ;; use `company-ctags' only.
-     ;; Please `company-lsp' is automatically enabled if installed
-     (setq lsp-enable-completion-at-point nil)
-     ;; turn off for better performance
-     (setq lsp-enable-symbol-highlighting nil)
-     ;; use ffip instead
-     (setq lsp-enable-links nil)
-     ;; don't scan 3rd party javascript libraries
-     (push "[/\\\\]\\node_modules$" lsp-file-watch-ignored)))
+
+(with-eval-after-load 'lsp-mode
+  ;; enable log only for debug
+  (setq lsp-log-io nil)
+  ;; use `evil-matchit' instead
+  (setq lsp-enable-folding nil)
+  ;; no real time syntax check
+  (setq lsp-diagnostic-package :none)
+  ;; handle yasnippet by myself
+  (setq lsp-enable-snippet nil)
+  ;; use `company-ctags' only.
+  ;; Please note `company-lsp' is automatically enabled if it's installed
+  (setq lsp-enable-completion-at-point nil)
+  ;; turn off for better performance
+  (setq lsp-enable-symbol-highlighting nil)
+  ;; use find-fine-in-project instead
+  (setq lsp-enable-links nil)
+  ;; auto restart lsp
+  (setq lsp-restart 'auto-restart)
+  ;; don't watch 3rd party javascript libraries
+  (push "[/\\\\][^/\\\\]*\\.\\(json\\|html\\|jade\\)$" lsp-file-watch-ignored)
+  ;; don't ping LSP lanaguage server too frequently
+  (defvar lsp-on-touch-time 0)
+  (defun my-lsp-on-change-hack (orig-fun &rest args)
+    ;; do NOT run `lsp-on-change' too frequently
+    (when (> (- (float-time (current-time))
+                lsp-on-touch-time) 120) ;; 2 mins
+      (setq lsp-on-touch-time (float-time (current-time)))
+      (apply orig-fun args)))
+  (advice-add 'lsp-on-change :around #'my-lsp-on-change-hack))
 #+end_src
 
 Then run `M-x lsp` to start lsp client and server. Check [[https://github.com/emacs-lsp/lsp-mode]] on how to install lsp server.
@@ -629,11 +641,11 @@ Please use [[https://github.com/redguardtoo/emacs.d/archive/2.9.zip]] and [[http
 * Tips
 - Never turn off any bundled mode if it's on by default. Future version of Emacs may assume it's on. Tweak its flag in mode hook instead!
 - Git skills are *extremely useful*. Please read the chapters "Git Basics", "Git Branching", "Git Tools" from [[https://git-scm.com/book/en/][Pro Git]]
-- You can run =optimize-emacs-startup= to compile "*.el" under =~/.emacs.d/lisp/=
+- You can run =optimize-emacs-startup= to compile "*.el" under =lisp/=
 * Report bug
 Please check [[http://www.emacswiki.org/emacs/][EmacsWiki]] and my FAQ at first
 
-If you still can't resolve the issue, restart Emacs with option =---debug-init= in shell , run =M-x toggle-debug-on-error= in Emacs. Try to reproduce the issue
+If you still can't resolve the issue, restart Emacs with option =---debug-init= in shell. Then run =M-x toggle-debug-on-error= in Emacs. Try to reproduce the issue.
 
 The full command line to run Emacs is =emacs -nw --debug-init= in most environments.
 

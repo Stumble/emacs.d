@@ -41,9 +41,6 @@ TAGS
 GTAGS
 GPATH
 GRTAGS
-.lsp-session-v1
-bookmarks
-.emacs.d/emms/
 tutorial/
 /var
 org-clock-save.el
@@ -68,3 +65,9 @@ network-security.data
 *.ogg
 nov-places
 transient/
+elpy/
+.lsp-session-v1
+bookmarks
+emms/
+.emacs.d/emms/
+

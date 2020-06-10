@@ -47,11 +47,11 @@
       (message "Buffer %s is not visible!" buf-name))
      (t
       (select-window target-window)
-      (let ((inhibit-read-only t))
+      (let* ((inhibit-read-only t))
         (erase-buffer))
       (select-window original-window)))))
 
-(defun erase-visible-buffer (&optional n)
+(defun my-erase-visible-buffer (&optional n)
   "Erase the content of the *Messages* buffer.
 N specifies the buffer to erase."
   (interactive "P")
@@ -67,6 +67,11 @@ N specifies the buffer to erase."
 
    ((eq 3 n)
     (erase-one-visible-buffer "*eshell*"))))
+
+(defun my-erase-current-buffer ()
+  "Erase current buffer even it's read-only."
+  (interactive)
+  (erase-one-visible-buffer (buffer-name (current-buffer))))
 ;; }}
 
 ;; {{ narrow region
@@ -140,12 +145,11 @@ If USE-INDIRECT-BUFFER is not nil, use `indirect-buffer' to hold the widen conte
    (t (error "Please select a region to narrow to"))))
 ;; }}
 
-(defun my-counsel-grep-or-swiper (&optional other-source)
+(defun my-swiper (&optional other-source)
   "Search current file.
 If OTHER-SOURCE is 1, get keyword from clipboard.
 If OTHER-SOURCE is 2, get keyword from `kill-ring'."
   (interactive "P")
-  (message "other-source=%s" other-source)
   (let* ((keyword (cond
                    ((eq 1 other-source)
                     (cliphist-select-item))
@@ -153,12 +157,68 @@ If OTHER-SOURCE is 2, get keyword from `kill-ring'."
                     (my-select-from-kill-ring 'identity))
                    ((region-active-p)
                     (my-selected-str)))))
-    ;; better performance, got Cygwin grep installed on Windows always
-    (counsel-grep-or-swiper keyword)))
+    ;; `swiper--re-builder' read from `ivy-re-builders-alist'
+    ;; more flexible
+    (swiper keyword)))
 
-(eval-after-load 'cliphist
-  '(progn
-     (defadvice cliphist-routine-before-insert (before before-cliphist-paste activate)
-       (my-delete-selected-region))))
+(with-eval-after-load 'cliphist
+  (defun cliphist-routine-before-insert-hack (&optional arg)
+    (my-delete-selected-region))
+  (advice-add 'cliphist-routine-before-insert :before #'cliphist-routine-before-insert-hack))
+
+;; {{ Write backup files to its own directory
+;; @see https://www.gnu.org/software/emacs/manual/html_node/tramp/Auto_002dsave-and-Backup.html
+(defvar my-binary-file-name-regexp "\\.\\(avi\\|wav\\|pdf\\|mp[34g]\\|mkv\\|exe\\|3gp\\|rmvb\\|rm\\)$"
+  "Is binary file name?")
+
+(setq backup-enable-predicate
+      (lambda (name)
+        (and (normal-backup-enable-predicate name)
+             (not (string-match-p my-binary-file-name-regexp name)))))
+
+(if (not (file-exists-p (expand-file-name "~/.backups")))
+  (make-directory (expand-file-name "~/.backups")))
+(setq backup-by-copying t ; don't clobber symlinks
+      backup-directory-alist '(("." . "~/.backups"))
+      delete-old-versions t
+      version-control t  ;use versioned backups
+      kept-new-versions 6
+      kept-old-versions 2)
+
+;; Donot make backups of files, not safe
+;; @see https://github.com/joedicastro/dotfiles/tree/master/emacs
+(setq vc-make-backup-files nil)
+;; }}
+
+;; {{ tramp setup
+(add-to-list 'backup-directory-alist
+             (cons tramp-file-name-regexp nil))
+(setq tramp-chunksize 8192)
+
+;; @see https://github.com/syl20bnr/spacemacs/issues/1921
+;; If you tramp is hanging, you can uncomment below line.
+;; (setq tramp-ssh-controlmaster-options "-o ControlMaster=auto -o ControlPath='tramp.%%C' -o ControlPersist=no")
+;; }}
+
+;; {{ GUI frames
+;; Suppress GUI features
+(setq use-file-dialog nil)
+(setq use-dialog-box nil)
+(setq inhibit-startup-screen t)
+(setq inhibit-startup-echo-area-message t)
+
+;; Show a marker in the left fringe for lines not in the buffer
+(setq indicate-empty-lines t)
+
+;; NO tool bar
+(if (fboundp 'tool-bar-mode)
+  (tool-bar-mode -1))
+;; no scroll bar
+(if (fboundp 'set-scroll-bar-mode)
+  (set-scroll-bar-mode nil))
+;; no menu bar
+(if (fboundp 'menu-bar-mode)
+  (menu-bar-mode -1))
+;; }}
 
 (provide 'init-essential)
