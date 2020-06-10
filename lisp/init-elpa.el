@@ -504,6 +504,7 @@ PACKAGE is a symbol, VERSION is a vector as produced by `version-to-list', and
 (require-package 'go-eldoc)
 (require-package 'go-rename)
 (require-package 'go-guru)
+(require-package 'go-tag)
 
 (require-package 'lsp-mode)
 (require-package 'lsp-ui)
