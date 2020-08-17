@@ -61,16 +61,14 @@
 ;; (add-hook 'tuareg-mode-hook 'merlin-mode t)
 ;; (add-hook 'caml-mode-hook 'merlin-mode t)
 
-;; set c++ stype to ndn
 ;; C++ coding styles
-;; (load-file "~/.emacs.d/site-lisp/ndn-cpp-style/ndnstyle.el")
-;; (load-file "~/.emacs.d/site-lisp/bfn-cpp-style/bfn-cpp-style.el")
-;; (load-file "~/.emacs.d/site-lisp/avtools-cpp-style/avtools-cpp-style.el")
-;; following does not work.
-;; (setq c-default-style "avtools")
-;; (add-hook 'c++-mode-hook (lambda ()
-;;                           (setq c-set-style "avtools")
-;;                           ))
+(load-file "~/.emacs.d/site-lisp/cpp-styles/bfn.el")
+(defun set-cpp-style-hook ()
+  (c-set-style "bfn")
+  ;; (auto-fill-mode)
+  ;; (c-toggle-auto-hungry-state 1)
+  )
+(add-hook 'c++-mode-hook 'set-cpp-style-hook)
 
 ;;; Turn off alarms
 (setq ring-bell-function 'ignore)
@@ -115,7 +113,7 @@
   ;; use `evil-matchit' instead
   (setq lsp-enable-folding nil)
   ;; no real time syntax check
-  (setq lsp-diagnostic-package :none)
+  ;; (setq lsp-diagnostic-package :none)
   ;; handle yasnippet by myself
   (setq lsp-enable-snippet nil)
   ;; use `company-ctags' only.
