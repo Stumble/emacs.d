@@ -67,7 +67,7 @@
 ;; {{ find-file-in-project (ffip)
 (with-eval-after-load 'find-file-in-project
   (defun my-search-git-reflog-code ()
-    (let* ((default-directory (locate-dominating-file default-directory ".git")))
+    (let* ((default-directory (my-git-root-dir)))
       (ffip-shell-command-to-string (format "git --no-pager reflog --date=short -S\"%s\" -p"
                                             (read-string "Regex: ")))))
   (push 'my-search-git-reflog-code ffip-diff-backends)
@@ -118,21 +118,6 @@
 ;; @see http://blog.binchen.org/posts/effective-code-navigation-for-web-development.html
 ;; don't let the cursor go into minibuffer prompt
 (setq minibuffer-prompt-properties (quote (read-only t point-entered minibuffer-avoid-prompt face minibuffer-prompt)))
-
-;; {{ comint-mode
-(with-eval-after-load 'comint
-  ;; Don't echo passwords when communicating with interactive programs:
-  ;; Github prompt is like "Password for 'https://user@github.com/':"
-  (setq comint-password-prompt-regexp
-        (format "%s\\|^ *Password for .*: *$" comint-password-prompt-regexp))
-  (add-hook 'comint-output-filter-functions 'comint-watch-for-password-prompt))
-(defun comint-mode-hook-setup ()
-  ;; look up shell command history
-  (local-set-key (kbd "M-n") 'counsel-shell-history)
-  ;; Don't show trailing whitespace in REPL.
-  (local-set-key (kbd "M-;") 'comment-dwim))
-(add-hook 'comint-mode-hook 'comint-mode-hook-setup)
-;; }}
 
 (global-set-key (kbd "M-x") 'counsel-M-x)
 (global-set-key (kbd "C-x C-m") 'counsel-M-x)
@@ -245,10 +230,6 @@ This function can be re-used by other major modes after compilation."
 
 (defalias 'list-buffers 'ibuffer)
 
-                                        ;effective emacs item 7; no scrollbar, no menubar, no toolbar
-(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
-(if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
-
 (defun my-download-subtitles ()
   (interactive)
   (shell-command "periscope.py -l en *.mkv *.mp4 *.avi &"))
@@ -291,7 +272,6 @@ This function can be re-used by other major modes after compilation."
                         "\\.mp[34]$"
                         "\\.avi$"
                         "\\.wav$"
-                        "\\.pdf$"
                         "\\.docx?$"
                         "\\.xlsx?$"
                         ;; sub-titles
@@ -748,11 +728,6 @@ If no region is selected, `kill-ring' or clipboard is used instead."
     (typewriter-mode 1)))
 ;; }}
 
-;; @see https://github.com/szermatt/emacs-bash-completion
-;; Other completion functions have higher priority
-;; than `bash-completion-dynamic-complete'.
-(add-hook 'shell-dynamic-complete-functions #'bash-completion-dynamic-complete t)
-
 (with-eval-after-load 'grep
   ;; eacl and other general grep (rgrep, grep ...) setup
   (dolist (v '("auto"
@@ -894,7 +869,7 @@ If the shell is already opened in some buffer, switch to that buffer."
           (concat (getenv "USER") " $ "))))
 
 ;; I'm in Australia now, so I set the locale to "en_AU"
-(defun insert-date (prefix)
+(defun my-insert-date (prefix)
   "Insert the current date. With prefix-argument, use ISO format. With
    two prefix arguments, write out the day and month name."
   (interactive "P")
@@ -1072,60 +1047,28 @@ Including indent-buffer, which should not be called automatically on save."
   (pomodoro-add-to-mode-line))
 ;; }}
 
-;; {{ pronunciation
-(defun my-pronounce-word (&optional word)
-  (interactive "sWord: ")
-  (my-ensure 'url)
-  (if word (setq word (downcase word)))
-  (let* ((url (format "https://dictionary.cambridge.org/pronunciation/english/%s" word))
-         (cached-mp3 (file-truename (concat my-emacs-d (format "misc/%s.mp3" word))))
-         (player (if (not *is-a-mac*) (my-guess-mplayer-path) "open"))
-         html-text
-         online-mp3)
-    (cond
-     ((file-exists-p cached-mp3)
-      (my-async-shell-command (format "%s %s" player cached-mp3)))
-     ((and (not (string-match "404" (setq html-text (with-current-buffer (url-retrieve-synchronously url) (buffer-string)))))
-           (string-match "data-src-mp3=\"\\([^\"]+\\)" html-text))
-      (setq online-mp3 (concat "https://dictionary.cambridge.org" (match-string 1 html-text)))
-      (url-copy-file online-mp3 cached-mp3)
-      (my-async-shell-command (format "%s %s" player cached-mp3)))
-     (t
-      (message "Sorry, can't find pronunciation for \"%s\"" word)))))
-
-(defun my-pronounce-current-word (&optional manual)
-  "Pronounce current word."
-  (interactive "P")
-  (when (memq major-mode '(nov-mode))
-    ;; go to end of word to workaround `nov-mode' bug
-    (forward-word)
-    (forward-char -1))
-  (let* ((word (if manual (read-string "Word: ")
-                 (thing-at-point 'word))))
-    (my-pronounce-word word)))
-;; }}
-
 ;; {{ epub setup
 (defun nov-mode-hook-setup ()
-  (local-set-key (kbd "d") (lambda ()
-                             (interactive)
-                             (when (memq major-mode '(nov-mode))
-                               ;; go to end of word to workaround `nov-mode' bug
-                               (forward-word)
-                               (forward-char -1))
-                             (sdcv-search-input (thing-at-point 'word))))
-  (local-set-key (kbd "w") 'my-pronounce-current-word)
+  "Set up of `nov-mode'."
+  (local-set-key (kbd "d")
+		 (lambda ()
+		   (interactive)
+		   ;; go to end of word to workaround `nov-mode' bug
+		   (forward-word)
+		   (forward-char -1)
+		   (sdcv-search-input (thing-at-point 'word))))
+  (local-set-key (kbd "w") 'mybigword-pronounce-word)
   (local-set-key (kbd ";") 'avy-goto-char-2))
 (add-hook 'nov-mode-hook 'nov-mode-hook-setup)
 ;; }}
 
 ;; {{ octave
-(add-hook 'octave-mode-hook
-          (lambda ()
-            (abbrev-mode 1)
-            (auto-fill-mode 1)
-            (if (eq window-system 'x)
-                (font-lock-mode 1))))
+(defun octave-mode-hook-setup ()
+  "Set up of `octave-mode'."
+  (abbrev-mode 1)
+  (auto-fill-mode 1)
+  (if (eq window-system 'x) (font-lock-mode 1)))
+(add-hook 'octave-mode-hook 'octave-mode-hook-setup)
 ;; }}
 
 ;; {{ wgrep setup
@@ -1223,6 +1166,39 @@ See https://github.com/RafayGhafoor/Subscene-Subtitle-Grabber."
                                (file-name-base video-file)))))
      (t
       (shell-command (format "%s --dir . &" cmd-prefix))))))
+;; }}
+
+(defvar my-sdcv-org-head-level 2)
+;; {{ use sdcv dictionary to find big word definition
+(defun my-sdcv-format-bigword (word zipf)
+  "Format WORD and ZIPF using sdcv dictionary."
+  (let* (rlt def)
+    (local-require 'sdcv)
+    ;; 2 level org format
+    (condition-case nil
+        (progn
+          (setq def (sdcv-search-witch-dictionary word sdcv-dictionary-complete-list))
+          (setq def (replace-regexp-in-string "^-->.*" "" def))
+          (setq def (replace-regexp-in-string "[\n\r][\n\r]+" "" def))
+          (setq rlt (format "%s %s (%s)\n%s\n"
+                            (make-string my-sdcv-org-head-level ?*)
+                            word
+                            zipf
+                            def)))
+      (error nil))
+    rlt))
+
+(defun my-lookup-big-word-definition-in-buffer ()
+  "Look up big word definitions."
+  (interactive)
+  (local-require 'mybigword)
+  (let* ((mybigword-default-format-function 'my-sdcv-format-bigword))
+    (mybigword-show-big-words-from-current-buffer)))
+;; }}
+
+;; {{ use pdf-tools to view pdf
+(when (and (display-graphic-p) *linux*)
+  (pdf-loader-install))
 ;; }}
 
 (provide 'init-misc)

@@ -62,11 +62,11 @@ The candidate could be placed in RLT."
 
 (defun my-git-recent-files ()
   "Get files in my recent git commits."
-  (let* ((default-directory (locate-dominating-file default-directory ".git"))
+  (let* ((default-directory (my-git-root-dir))
          ;; two weeks is a sprint, minus weekend and days for sprint review and test
          (cmd (format "git --no-pager log %s --name-status --since=\"10 days ago\" --pretty=format:"
                       my-git-recent-files-extra-options))
-         (lines (delq nil (delete-dups (split-string (shell-command-to-string cmd) "\n+"))))
+         (lines (my-lines-from-command-output cmd))
          items
          rlt)
     (when lines
@@ -184,16 +184,14 @@ If N is not nil, only list directories in current project."
       (unless str
         (setq str (my-use-selected-string-or-ask "Grep keyword: ")))
       (when str
-        (let* ((default-directory (locate-dominating-file default-directory ".git"))
-               (cmd-opts (concat "git diff-tree --no-commit-id --name-only -r HEAD"
-                                 (make-string (1- level) ?^)
+        (let* ((default-directory (my-git-root-dir))
+               ;; C-u 1 command to grep files in HEAD
+               (cmd-opts (concat (my-git-files-in-rev-command "HEAD" (1- level))
                                  " | xargs -I{} "
                                  "git --no-pager grep -n --no-color -I -e \"%s\" -- {}"))
-               (cmd (format cmd-opts str))
-               (output (string-trim (shell-command-to-string cmd)))
-               (cands (split-string output "[\r\n]+")))
+               (cmd (format cmd-opts str)))
           (ivy-read "git grep in commit: "
-                    cands
+                    (my-lines-from-command-output cmd)
                     :caller 'counsel-etags-grep
                     :history 'counsel-git-grep-history
                     :action #'counsel-git-grep-action))))
@@ -286,7 +284,8 @@ If N is nil, use `ivy-mode' to browse `kill-ring'."
   (my-ensure 'counsel)
   (cond
    ;; `counsel--imenu-candidates' was created on 2019-10-12
-   ((fboundp 'counsel--imenu-candidates)
+   ((and (fboundp 'counsel--imenu-candidates)
+         (not (memq major-mode '(pdf-view-mode))))
     (let* ((cands (counsel--imenu-candidates))
            (pre-selected (thing-at-point 'symbol))
            (pos (point))
@@ -315,6 +314,7 @@ If N is nil, use `ivy-mode' to browse `kill-ring'."
 (defun my-imenu-or-list-tag-in-current-file ()
   "Combine the power of counsel-etags and imenu."
   (interactive)
+  (counsel-etags-push-marker-stack)
   (cond
    ((my-use-tags-as-imenu-function-p)
     ;; see code of `my-use-tags-as-imenu-function-p'. Currently we only use ctags for imenu

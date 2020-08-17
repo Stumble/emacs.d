@@ -6,7 +6,7 @@
 ;; URL: http://github.com/redguardtoo/counsel-etags
 ;; Package-Requires: ((counsel "0.13.0"))
 ;; Keywords: tools, convenience
-;; Version: 1.9.11
+;; Version: 1.9.12
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@
 ;;
 ;;   `counsel-etags-find-tag-at-point' to navigate.  This command will also
 ;;   run `counsel-etags-scan-code' AUTOMATICALLY if tags file is not built yet.
+;;   It also calls `counsel-etags-fallback-grep-function' if not tag is found.
 ;;
 ;;   Run `counsel-etags-list-tag-in-current-file' to list tags in current file.
 ;;
@@ -46,6 +47,7 @@
 ;;
 ;;   `counsel-etags-scan-code' to create tags file
 ;;   `counsel-etags-grep' to grep
+;;   `counsel-etags-grep-extra-arguments' has extra arguments for grep
 ;;   `counsel-etags-grep-current-directory' to grep in current directory
 ;;   `counsel-etags-recent-tag' to open recent tag
 ;;   `counsel-etags-find-tag' to two steps tag matching use regular expression and filter
@@ -179,6 +181,17 @@ A CLI to create tags file:
   :group 'counsel-etags
   :type 'boolean)
 
+(defcustom counsel-etags-use-ripgrep-force nil
+  "Force use ripgrep as grep program.
+If rg is not in $PATH, then it should be defined in `counsel-etags-grep-program'."
+  :group 'counsel-etags
+  :type 'boolean)
+
+(defcustom counsel-etags-grep-extra-arguments ""
+  "Extra arguments passed to grep program."
+  :group 'counsel-etags
+  :type 'string)
+
 (defcustom counsel-etags-convert-grep-keyword 'identity
   "Convert keyword to grep to new regex to feed into grep program.
 
@@ -190,6 +203,17 @@ Here is code to enable grepping Chinese using pinyinlib,
            (if (and keyword (> (length keyword) 0))
                (pinyinlib-build-regexp-string keyword t)
              keyword)))"
+  :group 'counsel-etags
+  :type 'function)
+
+(defcustom counsel-etags-fallback-grep-function #'counsel-etags-grep
+  "The fallback grep function if tag can't be found at first.
+May Grep can find something.
+
+Below parameters is passed to the function.
+The parameter \"keyword\" is the search keyword.
+The parameter \"hint\" is the hint for grep ui.
+The parameter \"root\" is the project root directory."
   :group 'counsel-etags
   :type 'function)
 
@@ -499,6 +523,12 @@ The file is also used by tags file auto-update process.")
 
 (defvar counsel-etags-cache nil "Cache of multiple tags files.")
 
+(defvar counsel-etags-find-tag-map (make-sparse-keymap)
+  "Ivy keymap while narrowing down tags.")
+
+(defvar counsel-etags-last-tagname-at-point nil
+  "Last tagname queried at point.")
+
 (defun counsel-etags-win-path (executable-name drive)
   "Guess EXECUTABLE-NAME's full path in Cygwin on DRIVE."
   (let* ((path (concat drive ":\\\\cygwin64\\\\bin\\\\" executable-name ".exe")))
@@ -530,7 +560,7 @@ Return nil if it's not found."
 ;;;###autoload
 (defun counsel-etags-version ()
   "Return version."
-  (message "1.9.11"))
+  (message "1.9.12"))
 
 ;;;###autoload
 (defun counsel-etags-get-hostname ()
@@ -1069,7 +1099,7 @@ CONTEXT is extra information collected before find tag definition."
       (setq rlt (delq nil (delete-dups rlt))))
     rlt))
 
-(defun counsel-etags-encode(s)
+(defun counsel-etags-regexp-quote(s)
   "Encode S."
   ;; encode "{}[]"
   (setq s (replace-regexp-in-string "\"" "\\\\\"" s))
@@ -1079,6 +1109,7 @@ CONTEXT is extra information collected before find tag definition."
   (setq s (replace-regexp-in-string "\\." "\\\\\." s))
   (setq s (replace-regexp-in-string "\\[" "\\\\\[" s))
   (setq s (replace-regexp-in-string "\\]" "\\\\\]" s))
+  (setq s (replace-regexp-in-string "-" "\\\\-" s))
   ;; perl-regex support non-ASCII characters
   ;; Turn on `-P` from `git grep' and `grep'
   ;; the_silver_searcher and ripgrep need no setup
@@ -1089,14 +1120,15 @@ CONTEXT is extra information collected before find tag definition."
 (defun counsel-etags-selected-str ()
   "Get selected string.  Suppose plain text instead regex in selected text.
 So we need *encode* the string."
-  (if (region-active-p)
-      (counsel-etags-encode (buffer-substring-no-properties (region-beginning)
-                                                            (region-end)))))
+  (when (region-active-p)
+    (counsel-etags-regexp-quote (buffer-substring-no-properties (region-beginning)
+                                                                (region-end)))))
 
 (defun counsel-etags-tagname-at-point ()
   "Get tag name at point."
-  (or (counsel-etags-selected-str)
-      (funcall counsel-etags-find-tag-name-function)))
+  (setq counsel-etags-last-tagname-at-point
+        (or (counsel-etags-selected-str)
+            (funcall counsel-etags-find-tag-name-function))))
 
 (defun counsel-etags-forward-line (lnum)
   "Forward LNUM lines."
@@ -1105,6 +1137,7 @@ So we need *encode* the string."
     (goto-char (point-min))
     (forward-line (1- lnum))))
 
+;;;###autoload
 (defun counsel-etags-push-marker-stack ()
   "Save current position."
   ;; un-select region
@@ -1190,7 +1223,8 @@ Focus on TAGNAME if it's not nil."
                            (counsel-etags-open-file-api e
                                                         ,dir
                                                         ,tagname))
-                :caller 'counsel-etags-find-tag)))))
+                :caller 'counsel-etags-find-tag
+                :keymap counsel-etags-find-tag-map)))))
 
 (defun counsel-etags-tags-file-must-exist ()
   "Make sure tags file does exist."
@@ -1325,12 +1359,16 @@ CONTEXT is extra information collected before finding tag definition."
                 :dynamic-collection t
                 :action `(lambda (e)
                            (counsel-etags-open-file-api e ,dir))
-                :caller 'counsel-etags-find-tag))
+                :caller 'counsel-etags-find-tag
+                :keymap counsel-etags-find-tag-map))
 
      ((not (setq counsel-etags-find-tag-candidates
                  (counsel-etags-collect-cands tagname fuzzy current-file dir context)))
-      ;; OK let's try grep if no tag found
-      (counsel-etags-grep tagname "No tag found. "))
+      ;; OK, let's try grep the whole project if no tag is found yet
+      (funcall counsel-etags-fallback-grep-function
+               tagname
+               "No tag is found. "
+               (counsel-etags-locate-project)))
 
      (t
       ;; open the one selected candidate
@@ -1534,9 +1572,9 @@ If SYMBOL-AT-POINT is nil, don't read symbol at point."
         (setq counsel-etags-keyword (replace-regexp-in-string "\"" "\\\\\""str))))))
   counsel-etags-keyword)
 
-(defun counsel-etags-has-quick-grep ()
-  "Does ripgrep program exist?"
-  (executable-find "rg"))
+(defun counsel-etags-has-quick-grep-p ()
+  "Test if ripgrep program exist."
+  (or counsel-etags-use-ripgrep-force (executable-find "rg")))
 
 (defun counsel-etags-exclude-opts (use-cache)
   "Grep CLI options.  IF USE-CACHE is t, the options is read from cache."
@@ -1546,7 +1584,7 @@ If SYMBOL-AT-POINT is nil, don't read symbol at point."
                               counsel-etags-ignore-filenames)))
     ;; please note Windows DOS CLI only support double quotes
     (cond
-     ((counsel-etags-has-quick-grep)
+     ((counsel-etags-has-quick-grep-p)
       (concat (mapconcat (lambda (e)
                            (format "-g=\"!%s/*\"" (shell-quote-argument e)))
                          ignore-dirs " ")
@@ -1567,19 +1605,22 @@ If SYMBOL-AT-POINT is nil, don't read symbol at point."
   "Use KEYWORD and USE-CACHE to build CLI.
 Extended regex is used, like (pattern1|pattern2)."
   (cond
-   ((counsel-etags-has-quick-grep)
+   ((counsel-etags-has-quick-grep-p)
     ;; "--hidden" force ripgrep to search hidden files/directories, that's default
     ;; behavior of grep
-    (format "%s --hidden %s \"%s\" --"
-            (concat (executable-find "rg")
-                    ;; (if counsel-etags-debug " --debug")
-                    " -n -M 1024 --no-heading --color never -s --path-separator /")
+    (format "%s %s %s --hidden %s \"%s\" --"
+            ;; if rg is not in $PATH, then it's in `counsel-etags-grep-program'
+            (or (executable-find "rg") counsel-etags-grep-program)
+            ;; (if counsel-etags-debug " --debug")
+            "-n -M 1024 --no-heading --color never -s --path-separator /"
+            counsel-etags-grep-extra-arguments
             (counsel-etags-exclude-opts use-cache)
             keyword))
    (t
     ;; use extended regex always
-    (format "%s -rsnE %s \"%s\" *"
+    (format "%s -rsnE %s %s \"%s\" *"
             (or counsel-etags-grep-program (counsel-etags-guess-program "grep"))
+            counsel-etags-grep-extra-arguments
             (counsel-etags-exclude-opts use-cache)
             keyword))))
 

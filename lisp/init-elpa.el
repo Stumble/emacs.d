@@ -4,6 +4,7 @@
   (unless nil ;package--initialized
     ;; optimization, no need to activate all the packages so early
     (setq package-enable-at-startup nil)
+    ;; @see https://www.gnu.org/software/emacs/news/NEWS.27.1
     (package-initialize)))
 
 (my-initialize-package)
@@ -21,6 +22,7 @@
     js2-mode ; need new features
     git-timemachine ; stable version is broken when git rename file
     evil-textobj-syntax
+    undo-fu
     command-log-mode
     ;; lsp-mode ; stable version has performance issue, but unstable version sends too many warnings
     edit-server ; use Emacs to edit textarea in browser, need browser addon
@@ -29,10 +31,8 @@
     package-lint ; for melpa pull request only
     auto-yasnippet
     typescript-mode ; the stable version lacks important feature (highlight function names)
-    websocket ; to talk to the browser
     evil-exchange
     evil-find-char-pinyin
-    evil-lion
     ;; {{ dependencies of stable realgud are too old
     load-relative
     loc-changes
@@ -41,7 +41,6 @@
     iedit
     undo-tree
     js-doc
-    jss ; remote debugger of browser
     ;; {{ since stable v0.13.0 released, we go back to stable version
     ;; ivy
     ;; counsel
@@ -79,7 +78,6 @@
     distinguished-theme
     tao-theme
     ;; }}
-    slime
     groovy-mode
     company ; I won't wait another 2 years for stable
     simple-httpd
@@ -97,7 +95,6 @@
     pyim-basedict
     scratch
     session
-    multi-term
     inflections
     lua-mode
     pomodoro
@@ -126,7 +123,7 @@
   '(
     flycheck
     )
-  "Banned packages from melpa-stable")
+  "Banned packages from melpa-stable.")
 
 ;; I don't use any packages from GNU ELPA because I want to minimize
 ;; dependency on 3rd party web site.
@@ -288,7 +285,6 @@ You still need modify `package-archives' in \"init-elpa.el\" to PERMANENTLY use 
 ;; rvm-open-gem to get gem's code
 (require-package 'rvm)
 ;; C-x r l to list bookmarks
-(require-package 'multi-term)
 (require-package 'js-doc)
 (require-package 'js2-mode)
 (require-package 'rjsx-mode)
@@ -314,9 +310,7 @@ You still need modify `package-archives' in \"init-elpa.el\" to PERMANENTLY use 
 (require-package 'web-mode)
 (require-package 'emms)
 (require-package 'iedit)
-(require-package 'bash-completion)
 (require-package 'websocket) ; for debug debugging of browsers
-(require-package 'jss)
 (require-package 'undo-tree)
 (require-package 'evil)
 (require-package 'evil-escape)
@@ -327,10 +321,9 @@ You still need modify `package-archives' in \"init-elpa.el\" to PERMANENTLY use 
 (require-package 'evil-nerd-commenter)
 (require-package 'evil-surround)
 (require-package 'evil-visualstar)
-(require-package 'evil-lion)
 (require-package 'evil-args)
 (require-package 'evil-textobj-syntax)
-(require-package 'slime)
+(require-package 'undo-fu)
 (require-package 'counsel-css)
 (require-package 'auto-package-update)
 (require-package 'keyfreq)
@@ -340,8 +333,6 @@ You still need modify `package-archives' in \"init-elpa.el\" to PERMANENTLY use 
 (require-package 'elpa-mirror)
 ;; {{ @see https://pawelbx.github.io/emacs-theme-gallery/
 (require-package 'color-theme)
-;; emms v5.0 need seq
-(require-package 'seq)
 (require-package 'visual-regexp) ;; Press "M-x vr-*"
 (require-package 'vimrc-mode)
 (require-package 'nov) ; read epub
@@ -350,6 +341,8 @@ You still need modify `package-archives' in \"init-elpa.el\" to PERMANENTLY use 
 ;; (require-package 'langtool) ; my own patched version is better
 (require-package 'typescript-mode)
 (require-package 'edit-server)
+;; run "M-x pdf-tool-install" at debian and open pdf in GUI Emacs
+(require-package 'pdf-tools)
 
 ;; {{ Fixed expiring GNU ELPA keys
 ;; GNU ELPA GPG key will expire on Sep-2019. So we need install this package to

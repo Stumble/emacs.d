@@ -2,7 +2,7 @@
 - Fast. Only *one second* to start up
 - Robust. Never crash after package upgrade. Packages could be installed without network
 - Support Windows. You can find&grep files on Windows with minimum setup
-- Tested with Emacs 25.3, 26.1, 27 on Linux/Windows/Cygwin/macOS/WSL(Windows Subsystem for Linux)
+- Tested with Emacs 25.3, 26.3, 27.1, 28 on Linux/Windows/Cygwin/macOS/WSL(Windows Subsystem for Linux)
 - Emacs vanilla key bindings and directory layout is respected
 - Usable in [[https://packages.debian.org/emacs-nox][emacs-nox]] and works in [[http://www.putty.org/][PuTTY]]
 
@@ -21,6 +21,7 @@
   - [[#methodology][Methodology]]
 - [[#usage][Usage]]
   - [[#quick-start][Quick start]]
+  - [[#get-better-performance][Get better performance]]
   - [[#key-bindings][Key bindings]]
 - [[#faq][FAQ]]
   - [[#locked-packages][Locked packages]]
@@ -38,7 +39,6 @@
   - [[#hydraswipercounselivy][Hydra/Swiper/Counsel/Ivy]]
   - [[#react-and-jsx][React and JSX]]
   - [[#git-gutter][git-gutter]]
-  - [[#start-a-shell-inside-emacs][Start a shell inside Emacs]]
   - [[#setup-fonts-in-gui-emacs][Setup fonts in GUI Emacs]]
   - [[#synchronize-setup-with-git][Synchronize setup with Git]]
   - [[#indentation][Indentation]]
@@ -171,8 +171,10 @@ The content of personal dictionary can be cleaned by =M-x my-clean-aspell-dict=.
 Hunspell's default personal English dictionary is =$HOME/.hunspell_en_US=. The file format is same as aspell.
 
 Flyspell configuration is actually simple. Aspell uses =ispell-extra-args=. Hunspell uses =ispell-local-dictionary= and =ispell-local-dictionary=. That's it.
+
+For hunspell, please read my comment in =init-spelling.el=.
 **** xmlstarlet or xml
-- Required by =flymake= for HTML syntax check.
+- Required by =lazyflymake= for HTML syntax check.
 **** identify from [[http://www.imagemagick.org/][ImageMagick]]
 - Required by =org-mode= to export org file to odt contain images
 **** zip and unzip
@@ -259,7 +261,7 @@ Required for vim user,
 ** Methodology
 See [[https://github.com/redguardtoo/mastering-emacs-in-one-year-guide][Master Emacs in One Year]].
 * Usage
-I *avoid overriding the original setup* of third party command line program.
+Original configuration from Emacs or third party packages are respected.
 
 ** Quick start
 On Windows, you need install Cygwin which provides command line programs to Emacs. Cygwin could be installed on any hard drive but it's highly recommended don't change it relative path to the root driver.
@@ -274,9 +276,40 @@ Run =M-x find-file-in-project-by-selected= from =find-file-in-project= to find f
 
 Code auto-completion works out of box by using tags file created by Ctags. You need run =counsel-etags= at least once to fire up Ctags. =company-ctags= from =company-mode= provides the candidates for auto completion. No manual setup is required.
 
-Please [[https://en.wikipedia.org/wiki/Grep][grep]] in the directory =lisp= if you have any further questions on setup.
+Please [[https://en.wikipedia.org/wiki/Grep][grep]] in the directory =~/.emacs.d/lisp= if you have any further questions on setup.
+** Get better performance
+*** Adjust interval of spell check and syntax check
+This configuration is already optimized for low specification machines on Windows/Linux/macOS.
+
+But you could still squeeze more performance by decreasing the frequency of spell checking and programming syntax check.
+
+The spell check is done by [[https://github.com/redguardtoo/wucuo][wucuo]] which is light weight alternative of =flyspell-mode=.
+
+The programming syntax check is  done by [[https://github.com/redguardtoo/lazyflymake][lazyflymake]] which is light weight alternative of =flymake-mode=.
+
+Insert below code to =~/.custom.el= to increase the interval of check,
+#+begin_src elisp
+(with-eval-after-load 'wucuo
+  ;; 300 seconds
+  (setq wucuo-update-interval 300))
+(with-eval-after-load 'lazyflymake
+  ;; 300 seconds
+  (setq lazyflymake-update-interval 300))
+#+end_src
+*** Why opening file is slow
+Insert below code into =~/.custom.el=, replace "/home/user1/your-file-path" with the file you want to open,
+#+begin_src elisp
+(defun profile-open-file ()
+  (interactive)
+  (profiler-start 'cpu)
+  (find-file "/home/user1/your-file-path")
+  (profiler-report)
+  (profiler-stop))
+#+end_src
+
+Run =M-x profile-open-file= and read the report.
 ** Key bindings
-Don't memorize any key binding. Try =M-x any-command-in-emacs and key binding hint is displayed.
+Don't memorize any key binding. Try =M-x any-command-in-emacs= and hint for its key binding is displayed.
 
 Most key bindings are defined in =lisp/init-evil.el=, a few key in =lisp/init-hydra.el= which uses [[https://github.com/abo-abo/hydra][Hydra]].
 
@@ -319,7 +352,8 @@ Run =vc-msg-show=.
 If you select a region inside current line, the *correct commit which submits the selected snippet* is displayed instead of the latest commit touch the whole line.
 ** Save/Load windows layout
 =SPC s s= or =M-x wg-create-workgrou= to save windows layout.
-=SPC l l= or =M-x my-wg-switch-workgroup= to load windows layout.
+=SPC l l= or =M-x wg-open-workgroup= to load windows layout.
+
 ** Use this configuration as merge tool for Git
 This configuration might be the most efficient and most powerful merge tool for VCS.
 Insert below configuration into =~/.gitconfig=,
@@ -333,7 +367,9 @@ Then run =git mergetool -t ediff= to resolve conflicts.
 
 Here is [[https://gist.github.com/redguardtoo/d4ecd51f785bd117a6a0][my ~/.gitconfig]]. You can use [[https://github.com/redguardtoo/test-git-mergetool]] to practice.
 ** Default terminal shell
-You can customize =my-term-program= whose default value is =/bin/bash=. It's used by =ansi-term= and =multi-term=.
+Run =M-x shell=. If you use Zsh instead of Bash, please modify =init-term-mode.el=.
+
+You can customize =my-term-program= whose default value is =/bin/bash=. It's used by =ansi-term=.
 ** Override default setup
 Place your setup in =~/.custom.el= which is loaded after other "*.el".
 
@@ -421,14 +457,10 @@ You can set =git-gutter:exp-to-create-diff= to make git gutter support other VCS
       (shell-command-to-string (format "p4 diff -du -db %s"
                                        (file-relative-name buffer-file-name))))
 #+end_src
-** Start a shell inside Emacs
-Please =M-x multi-term=.
-
-If you use Zsh instead of Bash, please modify =init-term-mode.el=.
 ** Setup fonts in GUI Emacs
 Non-Chinese can use [[https://github.com/rolandwalker/unicode-fonts][unicode-fonts]].
 
-Chinese can use [[https://github.com/tumashu/chinese-fonts-setup][chinese-fonts-setup]].
+Chinese can use [[https://github.com/tumashu/cnfonts][cnfonts]].
 
 They are not included in this setup. You need install them manually.
 ** Synchronize setup with Git
@@ -643,16 +675,19 @@ Please use [[https://github.com/redguardtoo/emacs.d/archive/2.9.zip]] and [[http
 - Git skills are *extremely useful*. Please read the chapters "Git Basics", "Git Branching", "Git Tools" from [[https://git-scm.com/book/en/][Pro Git]]
 - You can run =optimize-emacs-startup= to compile "*.el" under =lisp/=
 * Report bug
-Please check [[http://www.emacswiki.org/emacs/][EmacsWiki]] and my FAQ at first
+Please check [[http://www.emacswiki.org/emacs/][EmacsWiki]] and my FAQ first.
 
-If you still can't resolve the issue, restart Emacs with option =---debug-init= in shell. Then run =M-x toggle-debug-on-error= in Emacs. Try to reproduce the issue.
+If you still can't resolve the issue,
+- Restart Emacs with option =--debug-init= in shell
+- Run =M-x toggle-debug-on-error= in Emacs
+- Reproduce the issue and send me the error message
 
-The full command line to run Emacs is =emacs -nw --debug-init= in most environments.
+The full command line to start Emacs is =emacs -nw --debug-init=.
 
 If you use [[https://emacsformacosx.com][Emacs for Mac OS X]], the command line is =/Application/Emacs.app/Contents/MacOS/Emacs -nw --debug-init=.
 
-Send error messages to the original developer if it's third party package's problem
+Send error messages to the original developer if it's third party package's problem.
 
-If *you are sure* it's this setup's problem, file bug report at [[https://github.com/redguardtoo/emacs.d]]. Don't email me!
+If *you are sure* it's this my bug, file report at [[https://github.com/redguardtoo/emacs.d]]. Don't email me!
 
 Bug report should include *environment details*.

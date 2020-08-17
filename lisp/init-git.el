@@ -34,37 +34,34 @@
 
 ;; {{ git-gutter
 (local-require 'git-gutter)
+(with-eval-after-load 'git-gutter
+  (setq git-gutter:update-interval 2)
+  ;; nobody use bzr
+  ;; I could be forced to use subversion or hg which has higher priority
+  ;; Please note my $HOME directory is under git control
+  (setq git-gutter:handled-backends '(svn hg git))
+  (setq git-gutter:disabled-modes
+        '(asm-mode
+          org-mode
+          outline-mode
+          markdown-mode
+          image-mode)))
 
 (defun git-gutter-reset-to-head-parent()
-  "Reset  gutter to HEAD^.  Support Subversion and Git."
+  "Reset gutter to HEAD^.  Support Subversion and Git."
   (interactive)
-  (let* (parent (filename (buffer-file-name)))
-    (if (eq git-gutter:vcs-type 'svn)
-        (setq parent "PREV")
-      (setq parent (if filename (concat (shell-command-to-string (concat "git --no-pager log --oneline -n1 --pretty=\"format:%H\" " filename)) "^") "HEAD^")))
+  (let* ((filename (buffer-file-name))
+         (cmd (concat "git --no-pager log --oneline -n1 --pretty=\"format:%H\" "
+                      filename))
+         (parent (cond
+                  ((eq git-gutter:vcs-type 'svn)
+                   "PREV")
+                  (filename
+                   (concat (shell-command-to-string cmd) "^"))
+                  (t
+                   "HEAD^"))))
     (git-gutter:set-start-revision parent)
     (message "git-gutter:set-start-revision HEAD^")))
-
-
-(defun my-git-commit-id ()
-  "Select commit id from current branch."
-  (let* ((git-cmd "git --no-pager log --date=short --pretty=format:'%h|%ad|%s|%an'")
-         (collection (nonempty-lines (shell-command-to-string git-cmd)))
-         (item (ffip-completing-read "git log:" collection)))
-    (when item
-      (car (split-string item "|" t)))))
-
-(defun my-git-show-commit-internal ()
-  "Show git commit"
-  (let* ((id (my-git-commit-id)))
-    (when id
-      (shell-command-to-string (format "git show %s" id)))))
-
-(defun my-git-show-commit ()
-  "Show commit using ffip."
-  (interactive)
-  (let* ((ffip-diff-backends '(("Show git commit" . my-git-show-commit-internal))))
-    (ffip-show-diff 0)))
 
 (defun git-gutter-toggle ()
   "Toggle git gutter."
@@ -84,14 +81,9 @@ Show the diff between current working code and git head."
 
 (global-git-gutter-mode t)
 
-;; nobody use bzr
-;; I could be forced to use subversion or hg which has higher priority
-;; Please note my $HOME directory is under git control
-(custom-set-variables '(git-gutter:handled-backends '(svn hg git)))
-
 (unless (fboundp 'global-display-line-numbers-mode)
  ;; git-gutter's workaround for linum-mode bug.
- ;; should not be used in `display-line-number-mode`
+ ;; should not be used in `display-line-number-mode'
  (git-gutter:linum-setup))
 
 (global-set-key (kbd "C-x C-g") 'git-gutter:toggle)
@@ -100,7 +92,28 @@ Show the diff between current working code and git head."
 (global-set-key (kbd "C-x v s") 'git-gutter:stage-hunk)
 ;; Revert current hunk
 (global-set-key (kbd "C-x v r") 'git-gutter:revert-hunk)
+
 ;; }}
+
+(defun my-git-commit-id ()
+  "Select commit id from current branch."
+  (let* ((git-cmd "git --no-pager log --date=short --pretty=format:'%h|%ad|%s|%an'")
+         (collection (nonempty-lines (shell-command-to-string git-cmd)))
+         (item (ffip-completing-read "git log:" collection)))
+    (when item
+      (car (split-string item "|" t)))))
+
+(defun my-git-show-commit-internal ()
+  "Show git commit."
+  (let* ((id (my-git-commit-id)))
+    (when id
+      (shell-command-to-string (format "git show %s" id)))))
+
+(defun my-git-show-commit ()
+  "Show commit using ffip."
+  (interactive)
+  (let* ((ffip-diff-backends '(("Show git commit" . my-git-show-commit-internal))))
+    (ffip-show-diff 0)))
 
 ;; {{ git-timemachine
 (defun my-git-timemachine-show-selected-revision ()
@@ -215,13 +228,14 @@ Show the diff between current working code and git head."
   "Rebase interactively on the closest branch or tag in git log output.
 If USER-SELECT-BRANCH is not nil, rebase on the tag or branch selected by user."
   (interactive "P")
-  (let* ((log-output (shell-command-to-string "git --no-pager log --decorate --oneline -n 1024"))
-         (lines (split-string log-output "\n"))
+  (let* ((cmd "git --no-pager log --decorate --oneline -n 1024")
+         (lines (my-lines-from-command-output cmd))
          (targets (delq nil
                         (mapcar (lambda (e)
                                   (when (and (string-match "^[a-z0-9]+ (\\([^()]+\\)) " e)
                                              (not (string-match "^[a-z0-9]+ (HEAD " e)))
-                                    (match-string 1 e))) lines)))
+                                    (match-string 1 e)))
+                                lines)))
          based)
     (cond
      ((or (not targets) (eq (length targets) 0))
@@ -278,9 +292,22 @@ If USER-SELECT-BRANCH is not nil, rebase on the tag or branch selected by user."
 
 ;; }}
 
+(defun my-git-find-file-in-commit (&optional arg)
+  "Find file in previous commit with ARG.
+If ARG is 1, find file in previous commit."
+  (interactive "P")
+  (my-ensure 'magit)
+  (let* ((rev (concat "HEAD" (if (eq arg 1) "^")))
+         (prompt (format "Find file from commit %s" rev))
+         (cmd (my-git-files-in-rev-command rev arg))
+         (default-directory (my-git-root-dir))
+         (file (completing-read prompt (my-lines-from-command-output cmd))))
+    (when file
+      (find-file file))))
+
 (defun my-git-log-trace-definition ()
   "Similar to `magit-log-trace-definition' but UI is simpler.
-If multi-lines are selected, trace the defintion of line range.
+If multi-lines are selected, trace the definition of line range.
 If only one line is selected, use current selection as function name to look up.
 If nothing is selected, use the word under cursor as function name to look up."
   (interactive)

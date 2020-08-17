@@ -7,6 +7,26 @@
          (require ,feature)
        (error nil))))
 
+(defun my-git-root-dir ()
+  "Git root directory."
+  (locate-dominating-file default-directory ".git"))
+
+(defun my-git-files-in-rev-command (rev level)
+  "Return git command line to show files in REV and LEVEL."
+  (unless level (setq level 0))
+  (concat "git diff-tree --no-commit-id --name-only -r "
+          rev
+          (make-string level ?^)))
+
+(defun nonempty-lines (s)
+  (split-string s "[\r\n]+" t))
+
+(defun my-lines-from-command-output (command)
+  "Return lines of COMMAND output."
+  (let* ((output (string-trim (shell-command-to-string command)))
+         (cands (nonempty-lines output)))
+    (delq nil (delete-dups cands))))
+
 (defun run-cmd-and-replace-region (cmd)
   "Run CMD in shell on selected region or whole buffer and replace it with cli output."
   (let* ((orig-point (point))
@@ -58,9 +78,6 @@
   "Write STR to FILE if it's missing."
   (unless (file-exists-p file)
     (my-write-to-file str file)))
-
-(defun nonempty-lines (s)
-  (split-string s "[\r\n]+" t))
 
 ;; Handier way to add modes to auto-mode-alist
 (defun add-auto-mode (mode &rest patterns)
@@ -370,5 +387,16 @@ For example,
     (set-language-environment "UTF-8")
     (prefer-coding-system 'utf-8))))
 ;; }}
+
+(defun my-skip-white-space (start step)
+  "Skip white spaces from START, return position of first non-space character.
+If STEP is 1,  search in forward direction, or else in backward direction."
+  (let* ((b start)
+         (e (if (> step 0) (line-end-position) (line-beginning-position))))
+    (save-excursion
+      (goto-char b)
+      (while (and (not (eq b e)) (memq (following-char) '(9 32)))
+        (forward-char step))
+      (point))))
 
 (provide 'init-utils)
