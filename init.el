@@ -105,7 +105,7 @@
   (require-init 'init-elpa)
   (require-init 'init-exec-path t) ;; Set up $PATH
   ;; Any file use flyspell should be initialized after init-spelling.el
-  (require-init 'init-spelling t)
+  ;; (require-init 'init-spelling t)
   (require-init 'init-uniquify t)
   (require-init 'init-ibuffer t)
   (require-init 'init-ivy)
