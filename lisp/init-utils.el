@@ -44,18 +44,6 @@
        (memq major-mode '(typescript-mode
                           js-mode))))
 
-(defun my-add-subdirs-to-load-path (my-lisp-dir)
-  "Add sub-directories under MY-LISP-DIR into `load-path'."
-  (let* ((default-directory my-lisp-dir))
-    (setq load-path
-          (append
-           (delq nil
-                 (mapcar (lambda (dir)
-                           (unless (string-match-p "^\\." dir)
-                             (expand-file-name dir)))
-                         (directory-files my-site-lisp-dir)))
-           load-path))))
-
 ;; {{ copied from http://ergoemacs.org/emacs/elisp_read_file_content.html
 (defun my-get-string-from-file (file)
   "Return FILE's content."
@@ -399,4 +387,30 @@ If STEP is 1,  search in forward direction, or else in backward direction."
         (forward-char step))
       (point))))
 
+(defun my-comint-current-input-region ()
+  "Region of current shell input."
+  (cons (process-mark (get-buffer-process (current-buffer)))
+        (line-end-position)))
+
+(defun my-comint-kill-current-input ()
+  "Kill current input in shell."
+  (interactive)
+  (let* ((region (my-comint-current-input-region)))
+    (kill-region (car region) (cdr region))))
+
+(defun my-comint-current-input ()
+  "Get current input in shell."
+  (let* ((region (my-comint-current-input-region)))
+    (string-trim (buffer-substring-no-properties (car region) (cdr region)))))
+
+(defun my-imenu-items (&optional index-function)
+  "Get imenu items using INDEX-FUNCTION."
+  (my-ensure 'imenu)
+  (let* ((imenu-auto-rescan t)
+         (imenu-create-index-function (or index-function imenu-create-index-function))
+         (imenu-auto-rescan-maxout (buffer-size))
+         (items (imenu--make-index-alist t)))
+    (delete (assoc "*Rescan*" items) items)))
+
 (provide 'init-utils)
+;;; init-utils.el ends here

@@ -1,63 +1,13 @@
 ;; -*- coding: utf-8; lexical-binding: t; -*-
 
-;; avoid spell-checking doublon (double word) in certain major modes
-(defvar my-flyspell-check-doublon t
-  "Check doublon (double word) when calling `flyspell-highlight-incorrect-region'.")
- (make-variable-buffer-local 'my-flyspell-check-doublon)
-
 (defvar my-default-spell-check-language "en_US"
   "Language used by aspell and hunspell CLI.")
 
 (with-eval-after-load 'flyspell
-  ;; {{ flyspell setup for web-mode
-  (defun my-web-mode-flyspell-verify ()
-    (let* ((f (get-text-property (- (point) 1) 'face))
-           rlt)
-      (cond
-       ;; Check the words whose font face is NOT in below *blacklist*
-       ((not (memq f '(web-mode-html-attr-value-face
-                       web-mode-html-tag-face
-                       web-mode-html-attr-name-face
-                       web-mode-constant-face
-                       web-mode-doctype-face
-                       web-mode-keyword-face
-                       web-mode-comment-face ;; focus on get html label right
-                       web-mode-function-name-face
-                       web-mode-variable-name-face
-                       web-mode-css-property-name-face
-                       web-mode-css-selector-face
-                       web-mode-css-color-face
-                       web-mode-type-face
-                       web-mode-block-control-face)))
-        (setq rlt t))
-       ;; check attribute value under certain conditions
-       ((memq f '(web-mode-html-attr-value-face))
-        (save-excursion
-          (search-backward-regexp "=['\"]" (line-beginning-position) t)
-          (backward-char)
-          (setq rlt (string-match "^\\(value\\|class\\|ng[A-Za-z0-9-]*\\)$"
-                                  (or (thing-at-point 'symbol) "")))))
-       ;; finalize the blacklist
-       (t
-        (setq rlt nil)))
-      ;; If rlt is t, it's a typo. If nil, not a typo.
-      rlt))
-  (put 'web-mode 'flyspell-mode-predicate 'my-web-mode-flyspell-verify)
-  ;; }}
-
   ;; better performance
-  (setq flyspell-issue-message-flag nil)
+  (setq flyspell-issue-message-flag nil))
 
   ;; flyspell-lazy is outdated and conflicts with latest flyspell
-
-  (defun my-flyspell-highlight-incorrect-region-hack (orig-func &rest args)
-    "Don't mark doublon (double words) as typo."
-    (let* ((beg (nth 0 args))
-           (end (nth 1 args))
-           (poss (nth 2 args)))
-      (when (or my-flyspell-check-doublon (not (eq 'doublon poss)))
-        (apply orig-func args))))
-  (advice-add 'flyspell-highlight-incorrect-region :around #'my-flyspell-highlight-incorrect-region-hack))
 
 ;; Basic Logic Summary:
 ;; If (aspell is installed) { use aspell}
@@ -148,6 +98,7 @@ Please note RUN-TOGETHER makes aspell less capable.  So it should be used in `pr
     ;; If it's nil, Emacs tries to automatically set up the dictionaries.
     (when (boundp 'ispell-hunspell-dictionary-alist)
       (setq ispell-hunspell-dictionary-alist ispell-local-dictionary-alist)))
+
    (t (setq ispell-program-name nil)
       (message "You need install either aspell or hunspell for ispell"))))
 

@@ -38,17 +38,44 @@
       (counsel-etags-grep)))))
 
 ;; {{ message buffer things
-(defun erase-one-visible-buffer (buf-name)
-  "Erase the content of visible buffer with BUF-NAME."
+(defun my-search-backward-prompt (n)
+  "Search backward for N prompt.
+Return the line beginning of prompt line."
+  (let* (rlt
+         (first-line-end-pos (save-excursion
+                               (goto-char (point-min))
+                               (line-end-position))))
+    (save-excursion
+      (while (and (> (line-beginning-position) first-line-end-pos)
+                  (> n 0))
+        (when (evilmi-prompt-line-p)
+          (setq n (1- n))
+          (setq rlt (line-beginning-position)))
+        (forward-line -1)))
+    rlt))
+
+(defun my-erase-one-visible-buffer (buf-name &optional n)
+  "Erase the content of visible buffer with BUF-NAME.
+Keep latest N cli program output if it's not nil."
   (let* ((original-window (get-buffer-window))
-         (target-window (get-buffer-window buf-name)))
+         (target-window (get-buffer-window buf-name))
+         beg)
     (cond
      ((not target-window)
       (message "Buffer %s is not visible!" buf-name))
      (t
       (select-window target-window)
       (let* ((inhibit-read-only t))
-        (erase-buffer))
+        (my-ensure 'evil-matchit-terminal)
+        (when (and n (> n 0) (fboundp 'evilmi-prompt-line-p))
+          ;; skip current prompt line
+          (forward-line -2)
+          (setq beg (my-search-backward-prompt n)))
+        (cond
+         (beg
+          (delete-region (point-min) beg))
+         (t
+          (erase-buffer))))
       (select-window original-window)))))
 
 (defun my-erase-visible-buffer (&optional n)
@@ -57,21 +84,23 @@ N specifies the buffer to erase."
   (interactive "P")
   (cond
    ((null n)
-    (erase-one-visible-buffer "*Messages*") )
+    (my-erase-one-visible-buffer "*Messages*"))
 
    ((eq 1 n)
-    (erase-one-visible-buffer "*shell*"))
+    (my-erase-one-visible-buffer "*shell*"))
 
    ((eq 2 n)
-    (erase-one-visible-buffer "*Javascript REPL*"))
+    (my-erase-one-visible-buffer "*Javascript REPL*"))
 
    ((eq 3 n)
-    (erase-one-visible-buffer "*eshell*"))))
+    (my-erase-one-visible-buffer "*eshell*"))))
 
-(defun my-erase-current-buffer ()
-  "Erase current buffer even it's read-only."
-  (interactive)
-  (erase-one-visible-buffer (buffer-name (current-buffer))))
+(defun my-erase-current-buffer (&optional n)
+  "Erase current buffer even it's read-only.
+Keep N cli output if it's not nil."
+  (interactive "P")
+  (my-erase-one-visible-buffer (buffer-name (current-buffer)) n)
+  (goto-char (point-max)))
 ;; }}
 
 ;; {{ narrow region
@@ -176,14 +205,14 @@ If OTHER-SOURCE is 2, get keyword from `kill-ring'."
         (and (normal-backup-enable-predicate name)
              (not (string-match-p my-binary-file-name-regexp name)))))
 
-(if (not (file-exists-p (expand-file-name "~/.backups")))
-  (make-directory (expand-file-name "~/.backups")))
-(setq backup-by-copying t ; don't clobber symlinks
-      backup-directory-alist '(("." . "~/.backups"))
-      delete-old-versions t
-      version-control t  ;use versioned backups
-      kept-new-versions 6
-      kept-old-versions 2)
+(let* ((backup-dir (expand-file-name "~/.backups")))
+  (unless (file-exists-p backup-dir) (make-directory backup-dir))
+  (setq backup-by-copying t ; don't clobber symlinks
+        backup-directory-alist (list (cons "." backup-dir))
+        delete-old-versions t
+        version-control t  ;use versioned backups
+        kept-new-versions 8
+        kept-old-versions 4))
 
 ;; Donot make backups of files, not safe
 ;; @see https://github.com/joedicastro/dotfiles/tree/master/emacs

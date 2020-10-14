@@ -170,7 +170,7 @@ This function can be re-used by other major modes after compilation."
 
     ;; fic-mode has performance issue on 5000 line C++, we can always use swiper instead
     ;; don't spell check double words
-    (setq my-flyspell-check-doublon nil)
+    (setq-local wucuo-flyspell-check-doublon nil)
     ;; enable for all programming modes
     ;; http://emacsredux.com/blog/2013/04/21/camelcase-aware-editing/
     (unless (derived-mode-p 'js2-mode)
@@ -290,16 +290,12 @@ This function can be re-used by other major modes after compilation."
 
 (defun my-which-function ()
   "Return current function name."
-
-  (my-ensure 'imenu)
   ;; @see http://stackoverflow.com/questions/13426564/how-to-force-a-rescan-in-imenu-by-a-function
-  (let* ((imenu-create-index-function (if (my-use-tags-as-imenu-function-p)
-                                          'counsel-etags-imenu-default-create-index-function
-                                        imenu-create-index-function)))
-    ;; clean the imenu cache
-    (setq imenu--index-alist nil)
-    (imenu--make-index-alist t)
-    (which-function)))
+  ;; clean the imenu cache
+  (my-imenu-items (if (my-use-tags-as-imenu-function-p)
+                      'counsel-etags-imenu-default-create-index-function
+                    imenu-create-index-function))
+  (which-function))
 
 (defun popup-which-function ()
   "Popup which function message."
