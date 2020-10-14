@@ -215,7 +215,7 @@
   (setq mode-name "P4_16")
   (setq imenu-generic-expression p4_16-imenu-generic-expression)
   (imenu-add-to-menubar "P4_16")
-  (cscope-minor-mode)
+  ;; (cscope-minor-mode)
   (run-hooks 'p4_16-mode-hook)
 )
 

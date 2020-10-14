@@ -107,6 +107,7 @@
 (add-hook 'c++-mode-hook #'lsp)
 
 (add-to-list 'lsp-file-watch-ignored "[/\\\\]vendor$")
+(add-to-list 'lsp-file-watch-ignored "[/\\\\]build$")
 (with-eval-after-load 'lsp-mode
   ;; enable log only for debug
   (setq lsp-log-io nil)
@@ -136,7 +137,12 @@
   ;;     (setq lsp-on-touch-time (float-time (current-time)))
   ;;     (apply orig-fun args)))
   ;; (advice-add 'lsp-on-change :around #'my-lsp-on-change-hack)
+  (setq lsp-response-timeout 3)
+  (setq lsp-idle-delay 0.500)
+  (setq lsp-completion-provider :capf)
+  ;; (setq lsp-enable-file-watchers nil) ;; this will disable file watcher!
   )
+
 
 (nvmap :prefix ",go"
        "j" 'godef-jump-other-window

@@ -7,9 +7,11 @@
   (when (version< emacs-version minver)
     (error "Emacs v%s or higher is required." minver)))
 
+;; XXX(yumin): changed to 100mb for gc and 1mb to process read for lsp-mode
 (defvar best-gc-cons-threshold
-  4000000
+  100000000
   "Best default gc threshold value.  Should NOT be too big!")
+(setq read-process-output-max (* 1024 1024)) ;; 1mb
 
 (defvar my-debug nil "Enable debug mode.")
 
