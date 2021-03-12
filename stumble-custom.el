@@ -187,4 +187,29 @@
        "l" 'cargo-process-clippy
        )
 
+;; solidity
+;; use solc ^0.8.0
+;; (setq solidity-solc-path "/home/stumble/bin/solc8")
+;; use solc stable
+(require 'flycheck)
+(setq solidity-solc-path "/snap/bin/solc")
+(setq solidity-solium-path "/home/stumble/.nvm/versions/node/v10.5.0/bin/solium")
+(setq flycheck-solidity-solc-addstd-contracts t)
+(setq solidity-flycheck-solc-checker-active t)
+(setq solidity-flycheck-solium-checker-active t)
+
+(require 'solidity-flycheck)
+(require 'solidity-mode)
+(require 'company-solidity)
+(setq solidity-comment-style 'slash)
+(add-hook 'solidity-mode-hook
+          (lambda ()
+            (set (make-local-variable 'company-backends)
+                 (append '((company-solidity company-capf company-dabbrev-code))
+                         company-backends))))
+(provide 'init-solidity-mode)
+
+(add-hook 'after-init-hook #'global-flycheck-mode)
+;; (setq flycheck-solidity-solium-soliumrcfile "/home/path/to/common/.soliumrc.json")
+
 ;;; stumble-custom.el ends here

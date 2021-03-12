@@ -116,8 +116,12 @@
     cargo
     toml-mode
     markdown-mode ;; indirected dep by cargo
+    graphql-mode
     company-lsp
-    company-statistics)
+    company-statistics
+    solidity-mode
+    solidity-flycheck
+    )
   "Packages to install from melpa-unstable.")
 
 (defvar melpa-stable-banned-packages
