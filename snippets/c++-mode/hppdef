@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: hppdef
+# key: hppdef
+# --
+
+#ifndef ${1:HPPNAME}
+#define $1
+
+$0
+
+#endif // $1

@@ -148,6 +148,9 @@
   (when my-lightweight-mode-p
     (require-init 'init-ediff))
 
+  ;; my custom settings
+  (load (expand-file-name "~/.emacs.d/stumble-custom.el") t nil)
+
   ;; @see https://github.com/hlissner/doom-emacs/wiki/FAQ
   ;; Adding directories under "site-lisp/" to `load-path' slows
   ;; down all `require' statement. So we do this at the end of startup

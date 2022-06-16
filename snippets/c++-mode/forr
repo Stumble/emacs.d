@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: forr
+# key: forr
+# --
+for (const auto& ${1:v} : ${2:array}) {
+    $0
+}
