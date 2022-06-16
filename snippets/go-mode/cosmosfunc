@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: cosmosfunc
+# key: cosmosfunc
+# contributor: Yumin Xia
+# --
+// $2 - $0
+func (dm ${1:struct}) ${2:f}(ctx sdk.Context) sdk.Error {
+}

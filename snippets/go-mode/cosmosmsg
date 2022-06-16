@@ -1,0 +1,44 @@
+# -*- mode: snippet -*-
+# name: cosmosmsg
+# key: cosmosmsg
+# contributor: Yumin Xia
+# --
+
+// $1 - TODO
+type ${1:name} struct {
+}
+
+var _ types.Msg = $1{}
+
+// Route - implements sdk.Msg
+func (msg $1) Route() string { return RouterKey }
+
+// Type - implements sdk.Msg
+func (msg $1) Type() string { return "$1" }
+
+// ValidateBasic - implements sdk.Msg
+func (msg $1) ValidateBasic() sdk.Error {
+}
+
+func (msg $1) String() string {
+	return fmt.Sprintf("$1{}",)
+}
+
+func (msg $1) GetPermission() types.Permission {
+	return types.TransactionPermission
+}
+
+// GetSignBytes - implements sdk.Msg
+func (msg $1) GetSignBytes() []byte {
+	return getSignBytes(msg)
+}
+
+// GetSigners - implements sdk.Msg
+func (msg $1) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.AccAddress()}
+}
+
+// GetConsumeAmount - implements types.Msg
+func (msg $1) GetConsumeAmount() types.Coin {
+	return types.NewCoinFromInt64(0)
+}

@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: testcase
+# key: testcase
+# contributor: Yumin Xia
+# --
+func (suite *${1:testsuite}) Test${2:testname}() {
+	testCases := []struct {
+		name string
+        $0
+	}{
+		{
+			name: "testname",
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+
+		})
+	}
+}

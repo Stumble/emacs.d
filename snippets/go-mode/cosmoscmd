@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: cosmoscmd
+# key: cosmoscmd
+# contributor: Yumin Xia
+# --
+
+// GetCmd$1 -
+func getCmd${1:Name}(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "$1",
+		Short: "${2:decs}",
+		Args:  cobra.ExactArgs(${3:0}),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			user := args[0]
+			uri := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.${4:QueryX}, user)
+			rst := model.$1{}
+			return utils.CLIQueryJSONPrint(cdc, uri, nil,
+				func() interface{} { return &rst })
+		},
+	}
+}

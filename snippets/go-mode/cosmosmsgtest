@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: cosmosmsgtest
+# key: cosmosmsgtest
+# contributor: Yumin Xia
+# --
+func (suite *${1:name}TestSuite) Test${2:msg}ValidateBasic() {
+	testCases := []struct {
+		testName    string
+		msg         $2
+		expectedErr sdk.Error
+	}{
+ 		{
+			testName: "ok1",
+			msg: $2{
+			},
+			expectedErr: nil,
+		},
+    }
+	for _, tc := range testCases {
+		suite.Equal(tc.expectedErr, tc.msg.ValidateBasic(), "%s", tc.testName)
+	}
+}
