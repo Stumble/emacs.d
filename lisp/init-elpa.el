@@ -150,16 +150,31 @@
     zoutline
     company-c-headers
     graphql-mode
-    company-statistics)
+    company-statistics
+    flycheck
+    lsp-mode
+    lsp-ui
+    go-mode
+    rust-mode
+    flycheck-rust
+    cargo
+    toml-mode
+    markdown-mode ;; indirected dep by cargo
+    solidity-mode
+    solidity-flycheck)
   "Packages to install from melpa-unstable.")
 
-(defvar melpa-stable-banned-packages nil
+(defvar melpa-stable-banned-packages
+  '(
+    flycheck
+    )
   "Banned packages from melpa-stable.")
 
 ;; I don't use any packages from GNU ELPA because I want to minimize
 ;; dependency on 3rd party web site.
 (setq package-archives
       '(
+        ;; uncomment below line if you need use GNU ELPA
         ("gnu" . "https://elpa.gnu.org/packages/")
         ("melpa" . "https://melpa.org/packages/")
         ("melpa-stable" . "https://stable.melpa.org/packages/")
@@ -515,6 +530,34 @@ If NO-REFRESH is nil, `package-refresh-contents' is called."
 
 ;; kill buffer without my confirmation
 (setq kill-buffer-query-functions (delq 'process-kill-buffer-query-function kill-buffer-query-functions))
+
+(require-package 'tuareg) ;; for ocaml
+(require-package 'scala-mode) ;; for scala
+
+;; replacing flymake with flycheck
+(require-package 'flycheck)
+(require-package 'irony)
+
+;; golang related packages
+;; (require-package 'company-go)
+(require-package 'go-errcheck)
+(require-package 'go-eldoc)
+(require-package 'go-rename)
+(require-package 'go-guru)
+(require-package 'go-tag)
+
+(require-package 'lsp-mode)
+(require-package 'lsp-ui)
+
+;; rust support
+(require-package 'rust-mode)
+(require-package 'flycheck-rust)
+(require-package 'cargo)
+(require-package 'toml-mode)  ;; for editing cargo files.
+
+;; solidity packages
+(require-package 'solidity-flycheck)
+(require-package 'solidity-mode)
 
 (provide 'init-elpa)
 ;;; init-elpa.el ends here
