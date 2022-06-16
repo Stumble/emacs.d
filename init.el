@@ -143,6 +143,9 @@
   (when my-lightweight-mode-p
     (require-init 'init-ediff))
 
+  ;; my custom settings
+  (load (expand-file-name "~/.emacs.d/stumble-custom.el") t nil)
+
   (require-init 'init-no-byte-compile t)
 
   (unless my-lightweight-mode-p

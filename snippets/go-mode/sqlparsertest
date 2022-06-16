@@ -1,0 +1,26 @@
+# -*- mode: snippet -*-
+# name: sqlparsertest
+# key: sqlparsertest
+# --
+package visitors
+
+import (
+	"testing"
+	"fmt"
+
+	// "github.com/pingcap/parser/ast"
+	"github.com/stretchr/testify/suite"
+
+	"github.com/lino-network/needle/pkg/parser"
+)
+
+type ${1:name}TestSuite struct {
+	suite.Suite
+}
+
+func (suite *$1TestSuite) TestBasic() {
+}
+
+func Test$1TestSuite(t *testing.T) {
+	suite.Run(t, new($1TestSuite))
+}

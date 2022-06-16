@@ -1,0 +1,35 @@
+# -*- mode: snippet -*-
+# name: sqlparservisitor
+# key: sqlparservisitor
+# --
+package visitors
+
+import (
+	"github.com/pingcap/parser/ast"
+)
+
+// $1Visitor -
+type ${1:name}Visitor struct {
+	*baseVisitor
+}
+
+// New$1Visitor -
+func New$1Visitor() *$1Visitor {
+	return &$1Visitor{
+		baseVisitor: newBaseVisitor("$1"),
+	}
+}
+
+var _ ast.Visitor = &$1Visitor{}
+
+// Enter - Implements Visitor
+func (s *$1Visitor) Enter(n ast.Node) (ast.Node, bool) {
+	s.baseVisitor.Enter(n)
+	return n, false
+}
+
+// Leave - Implements Visitor
+func (s *$1Visitor) Leave(n ast.Node) (ast.Node, bool) {
+	s.baseVisitor.Leave(n)
+	return n, true
+}

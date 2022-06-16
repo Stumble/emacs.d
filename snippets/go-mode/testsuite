@@ -1,0 +1,24 @@
+# -*- mode: snippet -*-
+# name: testsuite
+# key: testsuite
+# --
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/suite"
+)
+
+type ${1:name}TestSuite struct {
+	suite.Suite
+}
+
+func Test$1TestSuite(t *testing.T) {
+	suite.Run(t, new($1TestSuite))
+}
+
+func (suite *$1TestSuite) SetupTest() {
+}
+
+func (suite *$1TestSuite) TestBasic() {
+}

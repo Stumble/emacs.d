@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: cosmoshandle
+# key: cosmoshandle
+# contributor: Yumin Xia
+# --
+func handle${1:Msg}(
+	ctx sdk.Context, dm DeveloperKeeper, msg types.$1) sdk.Result {
+	if err := dm.${2:func}(
+		ctx, $0); err != nil {
+		return err.Result()
+	}
+	return sdk.Result{}
+}

@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: cosmostxcmd
+# key: cosmostxcmd
+# contributor: Yumin Xia
+# --
+// GetCmd$1 -
+func GetCmd${1:Name}(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "$1",
+		Short: "$1 ${2:desc}",
+		Args:  cobra.ExactArgs(${3:1}),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := client.NewCoreContextFromViper().WithTxEncoder(linotypes.TxEncoder(cdc))
+			app := args[0]
+			msg := types.Developer$1Msg{}
+			return ctx.DoTxPrintResponse(msg)
+		},
+	}
+	cmd.Flags().String(client.FlagWebsite, "", "website of the app")
+	return cmd
+}
