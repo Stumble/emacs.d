@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: cosmoserr
+# key: cosmoserr
+# contributor: Yumin Xia
+# --
+
+// Err$1 -
+func Err${1:name}() sdk.Error {
+	return types.NewError(
+		types.Code$1, fmt.Sprintf(""))
+}
