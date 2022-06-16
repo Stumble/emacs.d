@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: forn
+# key: forn
+# --
+for (${1:auto} ${2:i} = ${3:0}; $2 < ${4:MAX}; ++$2) {
+    $0
+}
