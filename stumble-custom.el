@@ -9,7 +9,7 @@
 ;;; Theme setup
 (when (or (display-graphic-p)
           (string-match-p "256color"(getenv "TERM")))
-  (load-theme 'molokai t))
+  (load-theme 'doom-molokai t))
 
 ;;; useful functions.
 ;;; add yank-and-indent function
