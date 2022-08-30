@@ -29,7 +29,9 @@
 (nvmap :prefix ","
   "pp" 'yank-and-indent
   "fof" 'ff-find-other-file
-  "ls" 'highlight-symbol)
+  "ls" 'highlight-symbol
+  "df" 'xref-find-definitions-other-window
+  )
 
 ;;; lsp-mode
 (with-eval-after-load 'lsp-mode
