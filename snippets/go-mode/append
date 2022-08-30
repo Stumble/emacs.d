@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: append
+# key: <<
+# contributor: Yumin Xia
+# --
+
+$1 = append(${1:theSlice}, ${2:theValue})
