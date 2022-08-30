@@ -11,6 +11,13 @@
           (string-match-p "256color"(getenv "TERM")))
   (load-theme 'doom-molokai t))
 
+;;; web-mode settings
+(defun my-web-mode-hook ()
+  "Hooks for Web mode."
+  (setq web-mode-markup-indent-offset 2)
+  )
+(add-hook 'web-mode-hook 'my-web-mode-hook)
+
 ;;; useful functions.
 ;;; add yank-and-indent function
 (defun yank-and-indent ()
@@ -33,12 +40,12 @@
   ;; no real time syntax check
   ;; (setq lsp-diagnostic-package :none)
   ;; handle yasnippet by myself
-  (setq lsp-enable-snippet nil)
+  ;; (setq lsp-enable-snippet nil)
   ;; use `company-ctags' only.
   ;; Please note `company-lsp' is automatically enabled if it's installed
   ;; (setq lsp-enable-completion-at-point nil)
   ;; turn off for better performance
-  (setq lsp-enable-symbol-highlighting nil)
+  ;; (setq lsp-enable-symbol-highlighting nil)
   ;; use find-fine-in-project instead
   (setq lsp-enable-links nil)
   ;; auto restart lsp
@@ -56,13 +63,9 @@
   ;; (advice-add 'lsp-on-change :around #'my-lsp-on-change-hack)
   (setq lsp-response-timeout 3)
   (setq lsp-idle-delay 0.500)
-  (setq lsp-completion-provider :capf)
+  ;; (setq lsp-completion-provider :capf)
   ;; (setq lsp-enable-file-watchers nil) ;; this will disable file watcher!
   )
-(nvmap :prefix ","
-  "pp" 'yank-and-indent
-  "fof" 'ff-find-other-file
-  "ls" 'highlight-symbol)
 
 ;;; python
 ;; pip3 install jedi # tests show that rope_py3k is better
@@ -177,3 +180,4 @@
 ;; (add-hook 'after-init-hook #'global-flycheck-mode)
 
 ;;; stumble-custom.el ends here
+
