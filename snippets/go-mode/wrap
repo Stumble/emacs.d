@@ -1,1 +1,7 @@
+# -*- mode: snippet -*-
+# name: wrap
+# key: wrap
+# contributor: Yumin Xia
+# --
+
 fmt.Errorf("$0: %w", err)
