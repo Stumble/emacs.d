@@ -31,6 +31,8 @@
   "fof" 'ff-find-other-file
   "ls" 'highlight-symbol
   "df" 'xref-find-definitions-other-window
+  "dx" 'xref-find-definitions
+  "pop" 'xref-pop-marker-stack
   )
 
 ;;; lsp-mode
