@@ -560,5 +560,8 @@ If NO-REFRESH is nil, `package-refresh-contents' is called."
 (require-package 'solidity-flycheck)
 (require-package 'solidity-mode)
 
+;; string
+(require-package 'string-inflection)
+
 (provide 'init-elpa)
 ;;; init-elpa.el ends here
