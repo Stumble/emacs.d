@@ -33,6 +33,7 @@
   "df" 'xref-find-definitions-other-window
   "dx" 'xref-find-definitions
   "pop" 'xref-pop-marker-stack
+  "gr" 'string-inflection-all-cycle
   )
 
 ;;; lsp-mode
