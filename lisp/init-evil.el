@@ -818,8 +818,8 @@ If N > 0 and in js, only occurrences in current N lines are renamed."
   ;;  (with-eval-after-load 'avy
   ;;    (set-face-attribute 'avy-lead-face-0 nil :foreground "black")
   ;;    (set-face-attribute 'avy-lead-face-0 nil :background "#f86bf3"))
-  ";" 'ace-pinyin-jump-char-2
-  "w" 'mybigword-big-words-in-current-window
+  ;; ";" 'ace-pinyin-jump-char-2
+  ;; "w" 'mybigword-big-words-in-current-window
   "s" 'avy-goto-word-or-subword-1
   "a" 'avy-goto-char-timer
   "db" 'sdcv-search-input ; details
