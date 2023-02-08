@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: wpgxserde
+# key: wpgxserde
+# --
+type ${1:Name}Serde struct {
+    $1 *${2:name}repo.Queries
+}
+
+func (s $1Serde) Load(dt []byte) error {
+    return s.$1.Load(context.Background(), dt)
+}
+
+func (s $1Serde) Dump() ([]byte, error) {
+    return s.$1.Dump(context.Background(), func(v *$2repo.$1) {
+		v.CreatedAt = time.Unix(0, 0).UTC()
+		v.UpdatedAt = time.Unix(0, 0).UTC()
+    })
+}
