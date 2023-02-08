@@ -6,6 +6,9 @@
 (setq ring-bell-function 'ignore)
 (global-set-key (kbd "M-,") 'company-complete)
 
+;; disable using number key as company complete.
+(setq my-company-select-by-number-p nil)
+
 ;;; Theme setup
 (when (or (display-graphic-p)
           (string-match-p "256color"(getenv "TERM")))
