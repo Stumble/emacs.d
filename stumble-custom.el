@@ -4,7 +4,28 @@
 ;;; Misc
 ;; Turn off alarms
 (setq ring-bell-function 'ignore)
-(global-set-key (kbd "M-,") 'company-complete)
+(setq byte-compile-warnings nil)
+
+;;; quelpa
+;; (setq quelpa-upgrade-interval 7)
+;; (add-hook #'after-init-hook #'quelpa-upgrade-all-maybe)
+(setq quelpa-checkout-melpa-p nil)
+(require 'quelpa)
+(require 'quelpa-use-package)
+
+;;; github copilot
+(use-package copilot
+  :unless (package-installed-p 'copilot)
+  :quelpa (copilot
+                   :upgrade nil
+                   :fetcher github
+                   :repo "zerolfx/copilot.el"
+                   :branch "main"
+                   :files ("dist" "*.el")))
+(require 'copilot)
+(add-hook 'prog-mode-hook 'copilot-mode)
+(define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
+(define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
 
 ;; disable using number key as company complete.
 (setq my-company-select-by-number-p nil)
@@ -37,7 +58,7 @@
   "dx" 'xref-find-definitions
   "pop" 'xref-pop-marker-stack
   "gr" 'string-inflection-all-cycle
-  )
+  "rn" 'lsp-rename)
 
 ;;; lsp-mode
 (with-eval-after-load 'lsp-mode
@@ -101,14 +122,15 @@
 ;; (add-hook 'tuareg-mode-hook 'merlin-mode t)
 ;; (add-hook 'caml-mode-hook 'merlin-mode t)
 
-;;; C++ (lsp)
 ;; C++ coding styles
-(load-file "~/.emacs.d/site-lisp/cpp-styles/bfn.el")
-(defun set-cpp-style-hook ()
-  (c-set-style "bfn")
-  )
-(add-hook 'c++-mode-hook 'set-cpp-style-hook)
-(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
+;; (load-file "~/.emacs.d/site-lisp/cpp-styles/bfn.el")
+;; (defun set-cpp-style-hook ()
+;;   (c-set-style "bfn")
+;;   )
+;; (add-hook 'c++-mode-hook 'set-cpp-style-hook)
+;; (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
+
+;;; C++ (lsp)
 ;; lsp-mode setup for clangd
 (setq gc-cons-threshold (* 100 1024 1024)
       read-process-output-max (* 1024 1024)
@@ -124,9 +146,9 @@
 
 ;;; P4
 ;;; Add P4_16 mode
-(load "~/.emacs.d/site-lisp/p4_16-mode/p4_16-mode.el")
-(require 'p4_16-mode)
-(add-to-list 'auto-mode-alist '("\\.p4\\'" . p4_16-mode))
+;; (load "~/.emacs.d/site-lisp/p4_16-mode/p4_16-mode.el")
+;; (require 'p4_16-mode)
+;; (add-to-list 'auto-mode-alist '("\\.p4\\'" . p4_16-mode))
 
 ;;; Go (lsp)
 (require 'go-mode)
@@ -142,9 +164,7 @@
 (nvmap :prefix ",go"
   "f" 'gofmt
   "ia" 'go-import-add
-  "ir" 'go-remove-unused-imports
-  "ec" 'go-errcheck
-  "rn" 'go-rename)
+  "ir" 'go-remove-unused-imports)
 ;; (add-hook 'go-mode-hook 'go-eldoc-setup)
 
 ;;; Rust
