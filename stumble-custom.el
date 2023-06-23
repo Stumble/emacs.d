@@ -58,7 +58,8 @@
   "dx" 'xref-find-definitions
   "pop" 'xref-pop-marker-stack
   "gr" 'string-inflection-all-cycle
-  "rn" 'lsp-rename)
+  "rn" 'lsp-rename
+  "ec" 'lsp-execute-code-action)
 
 ;;; lsp-mode
 (with-eval-after-load 'lsp-mode
