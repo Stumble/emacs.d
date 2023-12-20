@@ -9,7 +9,6 @@
 ;;; quelpa
 ;; (setq quelpa-upgrade-interval 7)
 ;; (add-hook #'after-init-hook #'quelpa-upgrade-all-maybe)
-(setq quelpa-checkout-melpa-p nil)
 (require 'quelpa)
 (require 'quelpa-use-package)
 
