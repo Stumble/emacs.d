@@ -25,6 +25,8 @@
 (add-hook 'prog-mode-hook 'copilot-mode)
 (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
 (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
+;; somehow custom-set-variables doesn't work for copilot-mode.
+(add-to-list 'warning-suppress-types '(copilot copilot-no-mode-indent))
 
 ;; disable using number key as company complete.
 (setq my-company-select-by-number-p nil)
