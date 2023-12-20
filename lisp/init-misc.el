@@ -477,7 +477,7 @@ So it's at the top of clipboard manager."
   (push 'file-remote-p auto-save-exclude)
   (push 'my-file-too-big-p auto-save-exclude)
   (push 'my-check-major-mode-for-auto-save auto-save-exclude)
-  (setq auto-save-idle 2) ; 2 seconds
+  (setq auto-save-idle 10) ; 10 seconds
   (setq auto-save-slient t))
 (my-run-with-idle-timer 4 #'auto-save-enable)
 ;; }}
