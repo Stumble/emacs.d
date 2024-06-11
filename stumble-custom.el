@@ -15,12 +15,10 @@
 ;;; github copilot
 (use-package copilot
   :unless (package-installed-p 'copilot)
-  :quelpa (copilot
-                   :upgrade nil
-                   :fetcher github
-                   :repo "zerolfx/copilot.el"
+  :quelpa (copilot :fetcher github
+                   :repo "copilot-emacs/copilot.el"
                    :branch "main"
-                   :files ("dist" "*.el")))
+                   :files ("*.el")))
 (require 'copilot)
 (add-hook 'prog-mode-hook 'copilot-mode)
 (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
