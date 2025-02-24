@@ -49,6 +49,7 @@
   (yank)
   (call-interactively 'indent-region))
 
+;;; general key bindings
 (nvmap :prefix ","
   "pp" 'yank-and-indent
   "fof" 'ff-find-other-file
@@ -58,7 +59,16 @@
   "pop" 'xref-pop-marker-stack
   "gr" 'string-inflection-all-cycle
   "rn" 'lsp-rename
-  "ec" 'lsp-execute-code-action)
+  "ec" 'lsp-execute-code-action
+  )
+
+(nvmap :prefix ",as"
+  "t" 'lsp-inlay-hints-mode
+  "i" 'lsp-ui-imenu
+  "r" 'lsp-find-references
+  "f" 'lsp-format-buffer
+  "e" 'flycheck-list-errors
+  )
 
 ;;; lsp-mode
 (with-eval-after-load 'lsp-mode
@@ -80,7 +90,7 @@
   ;; auto restart lsp
   ;; (setq lsp-restart 'auto-restart)
   ;; don't watch 3rd party javascript libraries
-  ;; (push "[/\\\\][^/\\\\]*\\.\\(json\\|html\\|jade\\)$" lsp-file-watch-ignored)
+  (push "[/\\\\][^/\\\\]*\\.\\(json\\|html\\|jade\\)$" lsp-file-watch-ignored)
   ;; don't ping LSP lanaguage server too frequently
   ;; (defvar lsp-on-touch-time 0)
   ;; (defun my-lsp-on-change-hack (orig-fun &rest args)
@@ -152,7 +162,7 @@
 
 ;;; Go (lsp)
 (require 'go-mode)
-(require 'go-rename)
+;; (require 'go-rename)
 (require 'go-guru)
 (require 'company)
 (require 'lsp-mode)
@@ -168,19 +178,12 @@
 ;; (add-hook 'go-mode-hook 'go-eldoc-setup)
 
 ;;; Rust
-;; rustup component add rls rust-analysis rust-src
-;; rustup component add rustfmt-preview
-;; cargo install cargo-check
-;; cargo install clippy
-;; cargo install cargo-edit
 (use-package rustic
   :ensure
   :bind (:map rustic-mode-map
               ("M-j" . lsp-ui-imenu)
               ("M-?" . lsp-find-references)
               ("C-c C-c l" . flycheck-list-errors)
-              ("C-c C-c a" . lsp-execute-code-action)
-              ("C-c C-c r" . lsp-rename)
               ("C-c C-c q" . lsp-workspace-restart)
               ("C-c C-c Q" . lsp-workspace-shutdown)
               ("C-c C-c s" . lsp-rust-analyzer-status))
@@ -191,8 +194,9 @@
   ;; (setq lsp-signature-auto-activate nil)
 
   ;; comment to disable rustfmt on save
-  (setq rustic-format-on-save t)
-  (add-hook 'rustic-mode-hook 'rk/rustic-mode-hook))
+  ;; (setq rustic-format-on-save t)
+  ;; (add-hook 'rustic-mode-hook 'rk/rustic-mode-hook)
+  )
 
 (defun rk/rustic-mode-hook ()
   ;; so that run C-c C-c C-r works without having to confirm, but don't try to
@@ -211,8 +215,11 @@
   (lsp-rust-analyzer-cargo-watch-command "clippy")
   (lsp-eldoc-render-all t)
   (lsp-idle-delay 0.6)
+  (lsp-file-watch-threshold 3000)
   ;; enable / disable the hints as you prefer:
-  (lsp-inlay-hint-enable t)
+  (lsp-inlay-hint-enable nil)
+  (lsp-rust-analyzer-rustfmt-extra-args ["+nightly"])
+  ;; (lsp-rust-analyzer-rustfmt-override-command ["rustup run stable rustfmt"])
   ;; These are optional configurations. See https://emacs-lsp.github.io/lsp-mode/page/lsp-rust-analyzer/#lsp-rust-analyzer-display-chaining-hints for a full list
   (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
   (lsp-rust-analyzer-display-chaining-hints t)
@@ -220,6 +227,7 @@
   (lsp-rust-analyzer-display-closure-return-type-hints t)
   (lsp-rust-analyzer-display-parameter-hints nil)
   (lsp-rust-analyzer-display-reborrow-hints nil)
+  (lsp-rust-features "all")
   :config
   (add-hook 'lsp-mode-hook 'lsp-ui-mode))
 
@@ -230,20 +238,21 @@
   (lsp-ui-peek-always-show t)
   (lsp-ui-sideline-show-hover t)
   (lsp-ui-doc-enable nil))
-(require 'rust-mode)
-(require 'flycheck-rust)
-(add-hook 'rust-mode-hook #'lsp)
-(add-hook 'rust-mode-hook #'cargo-minor-mode)
-(with-eval-after-load 'rust-mode
-  (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
-(nvmap :prefix ",cg" ;; cg stands for cargo
-  "r" 'cargo-process-run
-  "f" 'cargo-process-fmt
-  "c" 'cargo-process-check
-  "b" 'cargo-process-build
-  "t" 'cargo-process-test
-  "l" 'cargo-process-clippy
-  )
+
+;; previous rust setup
+;; (require 'flycheck-rust)
+;; (add-hook 'rust-mode-hook #'lsp)
+;; (add-hook 'rust-mode-hook #'cargo-minor-mode)
+;; (with-eval-after-load 'rust-mode
+;;   (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+;; (nvmap :prefix ",cg" ;; cg stands for cargo
+;;   "r" 'cargo-process-run
+;;   "f" 'cargo-process-fmt
+;;   "c" 'cargo-process-check
+;;   "b" 'cargo-process-build
+;;   "t" 'cargo-process-test
+;;   "l" 'cargo-process-clippy
+;;   )
 
 ;; Enable these to debug lsp & rust-analyzer
 ;; (setq lsp-log-io t) ; Enables logging of all LSP messages to *lsp-log*

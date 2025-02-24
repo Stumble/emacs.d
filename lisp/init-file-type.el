@@ -74,7 +74,7 @@
 
 (my-add-auto-mode 'csv-mode "\\.[Cc][Ss][Vv]\\'")
 
-(my-add-auto-mode 'rust-mode "\\.rs\\'")
+;; (my-add-auto-mode 'rust-mode "\\.rs\\'")
 
 ;; {{ verilog
 (autoload 'verilog-mode "verilog-mode" "Verilog mode" t )
