@@ -155,9 +155,9 @@
     lsp-mode
     lsp-ui
     go-mode
-    rust-mode
-    flycheck-rust
-    cargo
+    ;; rust-mode
+    ;; flycheck-rust
+    ;; cargo
     toml-mode
     markdown-mode ;; indirected dep by cargo
     solidity-mode
@@ -372,7 +372,7 @@ If NO-REFRESH is nil, `package-refresh-contents' is called."
 (require-package 'visual-regexp) ;; Press "M-x vr-*"
 (require-package 'vimrc-mode)
 (require-package 'nov) ; read epub
-(require-package 'rust-mode)
+;; (require-package 'rust-mode)
 ;; (require-package 'langtool) ; my own patched version is better
 (require-package 'typescript-mode)
 ;; run "M-x pdf-tool-install" at debian and open pdf in GUI Emacs
@@ -552,8 +552,8 @@ If NO-REFRESH is nil, `package-refresh-contents' is called."
 (require-package 'lsp-ui)
 
 ;; rust support
-(require-package 'rust-mode)
-(require-package 'flycheck-rust)
+;; (require-package 'rust-mode)
+;; (require-package 'flycheck-rust)
 (require-package 'cargo)
 (require-package 'toml-mode)  ;; for editing cargo files.
 
