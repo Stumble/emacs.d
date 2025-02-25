@@ -187,6 +187,8 @@
               ("C-c C-c q" . lsp-workspace-restart)
               ("C-c C-c Q" . lsp-workspace-shutdown)
               ("C-c C-c s" . lsp-rust-analyzer-status))
+  :custom
+  (rustic-analyzer-command '("ra-multiplex"))
   :config
   ;; uncomment for less flashiness
   ;; (setq lsp-eldoc-hook nil)
@@ -213,11 +215,12 @@
   :custom
   ;; what to use when checking on-save. "check" is default, I prefer clippy
   (lsp-rust-analyzer-cargo-watch-command "clippy")
+  (lsp-rust-analyzer-server-command '("ra-multiplex"))
   (lsp-eldoc-render-all t)
   (lsp-idle-delay 0.6)
   (lsp-file-watch-threshold 3000)
   ;; enable / disable the hints as you prefer:
-  (lsp-inlay-hint-enable nil)
+  (lsp-inlay-hint-enable t)
   (lsp-rust-analyzer-rustfmt-extra-args ["+nightly"])
   ;; (lsp-rust-analyzer-rustfmt-override-command ["rustup run stable rustfmt"])
   ;; These are optional configurations. See https://emacs-lsp.github.io/lsp-mode/page/lsp-rust-analyzer/#lsp-rust-analyzer-display-chaining-hints for a full list
@@ -277,5 +280,12 @@
 ;; (provide 'init-solidity-mode)
 ;; (add-hook 'after-init-hook #'global-flycheck-mode)
 
-;;; stumble-custom.el ends here
+;; add a shortcut function use tramp to remotely ssh-edit on g1.srv
+;; function name: ssh-g1
+;; server yxia@g1.srv:/home/yxia
+(defun ssh-g1 ()
+  "SSH and edit files remotely on g1.srv using Tramp."
+  (interactive)
+  (find-file "/ssh:yxia@g1.srv:/home/yxia/"))
 
+;;; stumble-custom.el ends here
