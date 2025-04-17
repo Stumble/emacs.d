@@ -354,7 +354,7 @@ If NO-REFRESH is nil, `package-refresh-contents' is called."
 (require-package 'evil-escape)
 (require-package 'evil-exchange)
 (require-package 'evil-find-char-pinyin)
-(require-package 'evil-mark-replace)
+;; (require-package 'evil-mark-replace)
 (require-package 'evil-matchit)
 (require-package 'evil-nerd-commenter)
 (require-package 'evil-surround)
