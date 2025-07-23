@@ -9,22 +9,22 @@
 ;;; quelpa
 ;; (setq quelpa-upgrade-interval 7)
 ;; (add-hook #'after-init-hook #'quelpa-upgrade-all-maybe)
-(require 'quelpa)
-(require 'quelpa-use-package)
+;; (require 'quelpa)
+;; (require 'quelpa-use-package)
 
-;;; github copilot
-(use-package copilot
-  :unless (package-installed-p 'copilot)
-  :quelpa (copilot :fetcher github
-                   :repo "copilot-emacs/copilot.el"
-                   :branch "main"
-                   :files ("*.el")))
-(require 'copilot)
-(add-hook 'prog-mode-hook 'copilot-mode)
-(define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
-(define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
-;; somehow custom-set-variables doesn't work for copilot-mode.
-(add-to-list 'warning-suppress-types '(copilot copilot-no-mode-indent))
+;; ;;; github copilot
+;; (use-package copilot
+;;   :unless (package-installed-p 'copilot)
+;;   :quelpa (copilot :fetcher github
+;;                    :repo "copilot-emacs/copilot.el"
+;;                    :branch "main"
+;;                    :files ("*.el")))
+;; (require 'copilot)
+;; (add-hook 'prog-mode-hook 'copilot-mode)
+;; (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
+;; (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
+;; ;; somehow custom-set-variables doesn't work for copilot-mode.
+;; (add-to-list 'warning-suppress-types '(copilot copilot-no-mode-indent))
 
 ;; disable using number key as company complete.
 (setq my-company-select-by-number-p nil)
@@ -177,9 +177,9 @@
   "ir" 'go-remove-unused-imports)
 ;; (add-hook 'go-mode-hook 'go-eldoc-setup)
 
-;;; Rust
+;; Rust
 (use-package rustic
-  :ensure
+  :ensure nil
   :bind (:map rustic-mode-map
               ("M-j" . lsp-ui-imenu)
               ("M-?" . lsp-find-references)

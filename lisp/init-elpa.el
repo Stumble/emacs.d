@@ -121,7 +121,7 @@
     lsp-mode
     lsp-ui
     go-mode
-    ;; rust-mode
+    rustic
     ;; flycheck-rust
     ;; cargo
     toml-mode
