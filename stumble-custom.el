@@ -6,12 +6,6 @@
 (setq ring-bell-function 'ignore)
 (setq byte-compile-warnings nil)
 
-;;; quelpa
-;; (setq quelpa-upgrade-interval 7)
-;; (add-hook #'after-init-hook #'quelpa-upgrade-all-maybe)
-;; (require 'quelpa)
-;; (require 'quelpa-use-package)
-
 ;; disable using number key as company complete.
 (setq my-company-select-by-number-p nil)
 

@@ -127,9 +127,7 @@
     toml-mode
     markdown-mode ;; indirected dep by cargo
     solidity-mode
-    solidity-flycheck
-    quelpa
-    quelpa-use-package)
+    solidity-flycheck)
   "Packages to install from melpa-unstable.")
 
 (defvar melpa-stable-banned-packages
@@ -447,10 +445,6 @@ If NO-REFRESH is nil, `package-refresh-contents' is called."
 
 ;; string
 (require-package 'string-inflection)
-
-;; package manager
-(require-package 'quelpa)
-(require-package 'quelpa-use-package)
 
 (provide 'init-elpa)
 ;;; init-elpa.el ends here
