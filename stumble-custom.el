@@ -1,4 +1,4 @@
-;; -*- coding: utf-8 -*-
+;; -*- coding: utf-8; lexical-binding: t; -*-
 ;; By Stumble at 2014.2.24 23:00 around
 
 ;;; Misc
@@ -62,7 +62,11 @@
   "ec" 'lsp-execute-code-action
   )
 
+;; upstream binds ",as" to `ast-grep-search'; I use ",as" as a prefix,
+;; so unbind it first and move ast-grep-search to ",asg".
+(nvmap :prefix "," "as" nil)
 (nvmap :prefix ",as"
+  "g" 'ast-grep-search
   "t" 'lsp-inlay-hints-mode
   "i" 'lsp-ui-imenu
   "r" 'lsp-find-references
@@ -178,6 +182,10 @@
 ;; (add-hook 'go-mode-hook 'go-eldoc-setup)
 
 ;; Rust
+(defvar my-rust-analyzer-command
+  (if (executable-find "ra-multiplex") '("ra-multiplex") '("rust-analyzer"))
+  "Prefer ra-multiplex, fall back to plain rust-analyzer if it is not installed.")
+
 (use-package rustic
   :ensure nil
   :bind (:map rustic-mode-map
@@ -188,7 +196,7 @@
               ("C-c C-c Q" . lsp-workspace-shutdown)
               ("C-c C-c s" . lsp-rust-analyzer-status))
   :custom
-  (rustic-analyzer-command '("ra-multiplex"))
+  (rustic-analyzer-command my-rust-analyzer-command)
   :config
   ;; uncomment for less flashiness
   ;; (setq lsp-eldoc-hook nil)
@@ -215,7 +223,7 @@
   :custom
   ;; what to use when checking on-save. "check" is default, I prefer clippy
   (lsp-rust-analyzer-cargo-watch-command "clippy")
-  (lsp-rust-analyzer-server-command '("ra-multiplex"))
+  (lsp-rust-analyzer-server-command my-rust-analyzer-command)
   (lsp-eldoc-render-all t)
   (lsp-idle-delay 0.6)
   (lsp-file-watch-threshold 3000)

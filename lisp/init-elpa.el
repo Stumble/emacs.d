@@ -437,6 +437,7 @@ If NO-REFRESH is nil, `package-refresh-contents' is called."
 ;; rust support
 ;; (require-package 'rust-mode)
 ;; (require-package 'flycheck-rust)
+(require-package 'rustic)
 (require-package 'cargo)
 (require-package 'toml-mode)  ;; for editing cargo files.
 
