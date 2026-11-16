@@ -276,4 +276,9 @@
   (interactive)
   (find-file "/ssh:yxia@g1.srv:/home/yxia/"))
 
+;; Emacs 31 warns about every loaded file without a `lexical-binding' cookie.
+;; The generated ~/.emacs.d/.session and old site-lisp packages lack it.
+(require 'warnings)
+(add-to-list 'warning-suppress-log-types '(files missing-lexbind-cookie))
+
 ;;; stumble-custom.el ends here

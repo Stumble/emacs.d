@@ -1,4 +1,4 @@
-;;; keyfreq.el --- track command frequencies
+;;; keyfreq.el --- track command frequencies  -*- lexical-binding: nil -*-
 ;; -*- coding: utf-8 -*-
 ;;
 ;; Copyright 2009-2010, 2015 by David Capello
